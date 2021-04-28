@@ -17,7 +17,7 @@
 import os
 from typing import Optional
 
-from flask import Flask, current_app, request, Response, Markup
+from flask import Flask, Markup, Response, current_app, request
 from jinja2 import Template
 from werkzeug.exceptions import BadRequest
 
@@ -30,7 +30,7 @@ class Inertia:
             self.init_app(app)
 
     def init_app(self, app: Flask):
-        """Init app and register before_request hook."""
+        """Init app, register request hooks and set context processor."""
         if not hasattr(app, "extensions"):
             app.extensions = {}
         app.extensions["inertia"] = self
@@ -40,6 +40,7 @@ class Inertia:
         app.after_request(self._modify_response)
 
     def _check_inertia(self) -> Optional[Response]:
+        """Check Inertia requests."""
         # request is ajax
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             # check if send with Inertia
@@ -52,9 +53,7 @@ class Inertia:
             if inertia_version_header and inertia_version_header != str(
                 inertia_version
             ):
-                response = Response(
-                    "Inertia versions does not match", status=409
-                )
+                response = Response("Inertia versions does not match", status=409)
                 response.headers["X-Inertia-Location"] = request.full_path
                 return response
 
@@ -76,12 +75,12 @@ class Inertia:
         }
 
     def include_router(self) -> Markup:
+        """Include JS router in Templates."""
         router_file = os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "router.js"
         )
         routes = {
-            rule.endpoint: rule.rule
-            for rule in current_app.url_map.iter_rules()
+            rule.endpoint: rule.rule for rule in current_app.url_map.iter_rules()
         }
         with open(router_file, "r") as jsfile:
             template = Template(jsfile.read())
