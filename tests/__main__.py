@@ -123,7 +123,7 @@ class TestInertia(unittest.TestCase):
     def test_include_router(self):
         response = self.client.get("/")
         self.assertIn(
-            b'window.routes = {"index": "/", "partial": "/partial/", "static": "/static/\\u003cpath:filename\\u003e", "users": "/users/"}',
+            b'window.routes = {"index": "/", "partial": "/partial/", "static": "/static/<path:filename>", "users": "/users/"}',
             response.data,
         )
 

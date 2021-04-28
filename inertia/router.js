@@ -9,7 +9,7 @@ window.reverseUrl = function(urlName) {
   }
 
   const args = arguments;
-  const argTokens = url.match(/<\w*>/g);
+  const argTokens = url.match(/\u003c\w*\u003e/g);
   if (!argTokens && args[1] !== undefined) {
     throw `Invalid URL lookup: URL ${urlName} does not expect any arguments.`;
   }

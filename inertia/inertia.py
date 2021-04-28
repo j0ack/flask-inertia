@@ -84,5 +84,11 @@ class Inertia:
         }
         with open(router_file, "r") as jsfile:
             template = Template(jsfile.read())
+            # Jinja2 template automatically get rid of ['<'|'>'] chars
+            content = (
+                template.render(routes=routes)
+                .replace("\\u003c", "<")
+                .replace("\\u003e", ">")
+            )
 
-        return Markup(template.render(routes=routes))
+        return Markup(content)
