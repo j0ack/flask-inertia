@@ -13,3 +13,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from flask_inertia.inertia import Inertia
+from flask_inertia.views import render_inertia
+
+__all__ = ["Inertia", "render_inertia"]

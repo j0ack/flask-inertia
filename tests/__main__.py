@@ -22,8 +22,7 @@ from flask import Flask, redirect, url_for
 
 sys.path.append(os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
 
-from inertia.inertia import Inertia  # noqa: E402
-from inertia.views import render_inertia  # noqa: E402
+from flask_inertia import Inertia, render_inertia  # noqa: E402
 
 
 class TestConfig:
