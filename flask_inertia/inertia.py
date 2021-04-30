@@ -21,6 +21,8 @@ from flask import Flask, Markup, Response, current_app, request
 from jinja2 import Template
 from werkzeug.exceptions import BadRequest
 
+from flask_inertia.version import get_asset_version
+
 
 class Inertia:
     """Inertia Plugin for Flask."""
@@ -30,36 +32,60 @@ class Inertia:
             self.init_app(app)
 
     def init_app(self, app: Flask):
-        """Init app, register request hooks and set context processor."""
+        """Init as an app extension
+
+        * Register before_request hook
+        * Register after_request hook
+        * Set context processor to have an `inertia` value in templates
+        """
         if not hasattr(app, "extensions"):
             app.extensions = {}
         app.extensions["inertia"] = self
         app.context_processor(self.context_processor)
-        app.config.setdefault("INERTIA_VERSION", "1")
-        app.before_request(self._check_inertia)
-        app.after_request(self._modify_response)
+        app.before_request(self.process_incoming_inertia_requests)
+        app.after_request(self.update_redirect)
 
-    def _check_inertia(self) -> Optional[Response]:
-        """Check Inertia requests."""
+    def process_incoming_inertia_requests(self) -> Optional[Response]:
+        """Process incoming Inertia requests.
+
+        AJAX requests must be forged by Inertia.
+
+        Whenever an Inertia request is made, Inertia will include the current asset
+        version in the X-Inertia-Version header. If the asset versions are the same,
+        the request simply continues as expected. However, if they are different,
+        the server immediately returns a 409 Conflict response (only for GET request),
+        and includes the URL in a X-Inertia-Location header.
+        """
         # request is ajax
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            # check if send with Inertia
-            if not request.headers.get("X-Inertia"):
-                raise BadRequest("Inertia headers not found")
+        if request.headers.get("X-Requested-With") != "XMLHttpRequest":
+            return None
 
-            # check inertia version
-            inertia_version = current_app.config.get("INERTIA_VERSION", "1")
-            inertia_version_header = request.headers.get("X-Inertia-Version")
-            if inertia_version_header and inertia_version_header != str(
-                inertia_version
-            ):
-                response = Response("Inertia versions does not match", status=409)
-                response.headers["X-Inertia-Location"] = request.full_path
-                return response
+        # check if send with Inertia
+        if not request.headers.get("X-Inertia"):
+            raise BadRequest("Inertia headers not found")
+
+        # check inertia version
+        server_version = get_asset_version()
+        inertia_version = request.headers.get("X-Inertia-Version")
+        if (
+            request.method == "GET"
+            and inertia_version
+            and inertia_version != str(server_version)
+        ):
+            response = Response("Inertia versions does not match", status=409)
+            response.headers["X-Inertia-Location"] = request.full_path
+            return response
 
         return None
 
-    def _modify_response(self, response: Response) -> Response:
+    def update_redirect(self, response: Response) -> Response:
+        """Update redirect to set 303 status code.
+
+        409 conflict responses are only sent for GET requests, and not for
+        POST/PUT/PATCH/DELETE requests. That said, they will be sent in the
+        event that a GET redirect occurs after one of these requests. To force
+        Inertia to use a GET request after a redirect, the 303 HTTP status is used
+        """
         if (
             request.method in ["PUT", "PATCH", "DELETE"]
             and response.status_code == 302
