@@ -15,8 +15,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import re
 import sys
 import unittest
+from unittest.mock import patch
 
 from flask import Flask, redirect, url_for
 
@@ -28,7 +30,6 @@ from flask_inertia import Inertia, render_inertia  # noqa: E402
 class TestConfig:
 
     TESTING = True
-    INERTIA_VERSION = 1
     INERTIA_TEMPLATE = "base.html"
 
 
@@ -51,17 +52,40 @@ class TestInertia(unittest.TestCase):
     """Flask-Inertia tests."""
 
     def setUp(self):
-        app = Flask(__name__, template_folder=".")
-        app.config.from_object(TestConfig)
-        app.add_url_rule("/", "index", index)
-        app.add_url_rule(
+        self.app = Flask(__name__, template_folder=".")
+        self.app.config.from_object(TestConfig)
+        self.app.add_url_rule("/", "index", index)
+        self.app.add_url_rule(
             "/users/", "users", users, methods=["PUT", "DELETE", "PATCH"]
         )
-        app.add_url_rule("/partial/", "partial", partial_loading)
+        self.app.add_url_rule("/partial/", "partial", partial_loading)
+
+        Inertia(self.app)
+
+        self.client = self.app.test_client()
+
+    def test_extension_init(self):
+        app = Flask(__name__, template_folder=".")
+        app.config.from_object(TestConfig)
+        # remove extensions attr
+        del app.extensions
 
         Inertia(app)
+        self.assertIsNotNone(app.extensions)
+        self.assertIn("inertia", app.extensions)
 
-        self.client = app.test_client()
+    def test_bad_request(self):
+        headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Inertia-Version": "1000",
+        }
+        response = self.client.get("/", headers=headers)
+        self.assertEqual(response.status_code, 400)
+
+    def test_no_inertia_template(self):
+        del self.app.config["INERTIA_TEMPLATE"]
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 400)
 
     def test_non_inertia_view(self):
         response = self.client.get("/")
@@ -73,23 +97,27 @@ class TestInertia(unittest.TestCase):
         self.assertFalse(response.is_json)
 
     def test_wrong_version(self):
-        headers = {
-            "X-Inertia": "true",
-            "X-Requested-With": "XMLHttpRequest",
-            "X-Inertia-Version": "1000",
-        }
-        response = self.client.get("/", headers=headers)
-        self.assertEqual(response.status_code, 409)
+        with patch("flask_inertia.inertia.get_asset_version") as get_version_mock:
+            get_version_mock.return_value = 1
+            headers = {
+                "X-Inertia": "true",
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Inertia-Version": "1000",
+            }
+            response = self.client.get("/", headers=headers)
+            self.assertEqual(response.status_code, 409)
 
     def test_request_modifiers(self):
-        headers = {
-            "X-Inertia": "true",
-            "X-Requested-With": "XMLHttpRequest",
-            "X-Inertia-Version": "1",
-        }
-        response = self.client.get("/", headers=headers)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.is_json)
+        with patch("flask_inertia.inertia.get_asset_version") as get_version_mock:
+            get_version_mock.return_value = 1
+            headers = {
+                "X-Inertia": "true",
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Inertia-Version": "1",
+            }
+            response = self.client.get("/", headers=headers)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(response.is_json)
 
     def test_redirect_303_for_put_patch_delete_requests(self):
         response = self.client.put("/users/", data={})
@@ -107,9 +135,15 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b'"b": "b"', response.data)
         self.assertIn(b'"c": "c"', response.data)
 
+        version_match = re.search(
+            r'"version": \d+', response.data.decode("utf-8")
+        ).group()
+        assert version_match is not None
+        version = version_match.split(": ")[1]
+
         headers = {
             "X-Inertia": "true",
-            "X-Inertia-Version": "1",
+            "X-Inertia-Version": str(version),
             "X-Requested-With": "XMLHttpRequest",
             "X-Inertia-Partial-Data": ["a"],
             "X-Inertia-Partial-Component": "Partial",

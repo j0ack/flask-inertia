@@ -18,15 +18,17 @@ from typing import Optional
 
 from flask import Response, abort, current_app, jsonify, render_template, request
 
+from flask_inertia.version import get_asset_version
+
 
 def render_inertia(
     component_name: str, props: dict = {}, template_name: Optional[str] = None
 ) -> Response:
     """Method to use instead of Flask `render_template`."""
-    inertia_version = current_app.config.get("INERTIA_VERSION")
-    inertia_template = current_app.config.get("INERTIA_TEMPLATE", template_name)
+    inertia_version = get_asset_version()
+    inertia_template = template_name or current_app.config.get("INERTIA_TEMPLATE")
     if inertia_template is None:
-        return abort(
+        abort(
             400,
             "No Inertia template found. Either set INERTIA_TEMPLATE"
             + "in config or pass template parameter.",
