@@ -1,0 +1,15 @@
+image: python:3
+stages:
+  - tests
+
+before_script:
+  - pip install -U -r requirements.txt
+
+unit_tests:
+  stage: tests
+  coverage: '/\d+\%\s*$/'
+  script:
+    - pip install -U coverage
+    - coverage run --source=flask_inertia tests/
+  after_script:
+    - coverage report -m --fail-under=90
