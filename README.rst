@@ -1,7 +1,7 @@
 Flask-Inertia
 =============
 
-| coverage |
+|coverage|
 
 
 **Work In Progress**
