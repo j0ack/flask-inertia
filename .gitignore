@@ -1,7 +1,7 @@
 venv
 __pycache__
-*.pyc
-*.pyo
+*.py[co]
 dist
 lib
 .coverage
+*.egg-info

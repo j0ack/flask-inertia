@@ -1,0 +1,3 @@
+include README.rst
+include flask_inertia/router.js
+recursive-include tests *
