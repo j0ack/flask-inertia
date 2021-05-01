@@ -1,18 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# MIT License
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Copyright (c) 2021 TROUVERIE Joachim <jtrouverie@joakode.fr>
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""
+flask_inertia.views
+-------------------
+
+Implement a method to add Inertia rendering into Flask.
+"""
+
 
 from typing import Optional
 
@@ -24,7 +41,33 @@ from flask_inertia.version import get_asset_version
 def render_inertia(
     component_name: str, props: dict = {}, template_name: Optional[str] = None
 ) -> Response:
-    """Method to use instead of Flask `render_template`."""
+    """Method to use instead of Flask `render_template`.
+
+    Returns either a JSON response or a HTML response including a JSON encoded inertia
+    page object according to Inertia request headers.
+
+    ```
+    from flask_inertia import render_inertia
+
+    app = Flask(__name__)
+
+    @app.route("/")
+    def index():
+        data = {
+            "username": "foo",
+            "login": "bar",
+        }
+        return render_inertia(
+            component_name="Index",  # this must exists in your frontend
+            props=data,  # optional
+            template_name="base.html",  # override current app config INERTIA_TEMPLATE
+        )
+    ```
+
+    :param component_name: The component name used in your frontend framework
+    :param props: A dict of properties used in your component
+    :param template_name: A Jinja2 template name used by Flask to render the component
+    """
     inertia_version = get_asset_version()
     inertia_template = template_name or current_app.config.get("INERTIA_TEMPLATE")
     if inertia_template is None:

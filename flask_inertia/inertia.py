@@ -1,24 +1,41 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# MIT License
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Copyright (c) 2021 TROUVERIE Joachim <jtrouverie@joakode.fr>
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+"""
+flask_inertia.inertia
+---------------------
+
+Create a Flask extension to bind Flask and InertiaJS.
+"""
 
 import os
 from typing import Optional
 
 from flask import Flask, Markup, Response, current_app, request
 from jinja2 import Template
+from jsmin import jsmin
 from werkzeug.exceptions import BadRequest
 
 from flask_inertia.version import get_asset_version
@@ -85,6 +102,8 @@ class Inertia:
         POST/PUT/PATCH/DELETE requests. That said, they will be sent in the
         event that a GET redirect occurs after one of these requests. To force
         Inertia to use a GET request after a redirect, the 303 HTTP status is used
+
+        :param response: The generated response to update
         """
         if (
             request.method in ["PUT", "PATCH", "DELETE"]
@@ -96,6 +115,16 @@ class Inertia:
 
     @staticmethod
     def context_processor():
+        """Add an `inertia` directive to Jinja2 template to allow router inclusion
+
+        ```
+        <head>
+          <script lang="javascript">
+            {{ inertia.include_router() }}
+          </script>
+        </head>
+        ```
+        """
         return {
             "inertia": current_app.extensions["inertia"],
         }
@@ -116,5 +145,6 @@ class Inertia:
                 .replace("\\u003c", "<")
                 .replace("\\u003e", ">")
             )
+            content_minified = jsmin(content)
 
-        return Markup(content)
+        return Markup(content_minified)
