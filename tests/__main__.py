@@ -107,7 +107,7 @@ class TestInertia(unittest.TestCase):
 
     def test_wrong_version(self):
         with patch("flask_inertia.inertia.get_asset_version") as get_version_mock:
-            get_version_mock.return_value = 1
+            get_version_mock.return_value = "1"
             headers = {
                 "X-Inertia": "true",
                 "X-Requested-With": "XMLHttpRequest",
@@ -118,7 +118,7 @@ class TestInertia(unittest.TestCase):
 
     def test_request_modifiers(self):
         with patch("flask_inertia.inertia.get_asset_version") as get_version_mock:
-            get_version_mock.return_value = 1
+            get_version_mock.return_value = "1"
             headers = {
                 "X-Inertia": "true",
                 "X-Requested-With": "XMLHttpRequest",
@@ -145,14 +145,14 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b'"c": "c"', response.data)
 
         version_match = re.search(
-            r'"version": \d+', response.data.decode("utf-8")
+            r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
         ).group()
         assert version_match is not None
-        version = version_match.split(": ")[1]
+        version = version_match.split(": ")[1].replace('"', "")
 
         headers = {
             "X-Inertia": "true",
-            "X-Inertia-Version": str(version),
+            "X-Inertia-Version": version,
             "X-Requested-With": "XMLHttpRequest",
             "X-Inertia-Partial-Data": ["a"],
             "X-Inertia-Partial-Component": "Partial",
