@@ -1,12 +1,24 @@
-Flask-Inertia
-=============
+
+.. image:: _static/logo.png
+   :align: center
+
+
+Welcome to Flask-Inertia's documentation
+========================================
 
 |coverage| |version| |inertiaversion| |license|
 
-
-**Work In Progress**
-
 `Inertiajs <https://inertiajs.com/>`_ Adapter for `Flask <https://flask.palletsprojects.com/>`_.
+
+This is still a **Work in progress** library, use it at your own risk.
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   tutorial
+   api
 
 
 Installation
@@ -156,7 +168,8 @@ If the value is a ``callable``, the module will resolve it during the response
 resolution.
 
 To see a complete exemple on how to implement a project with this adapter, please
-read our `Tutorial <https://flask-inertia.readthedocs.io/en/latest/tutorial.html>`_.
+read our :doc:`tutorial`.
+
 
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg

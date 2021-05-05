@@ -41,22 +41,22 @@ def render_inertia(component_name: str, props: dict = {}) -> Response:
     Returns either a JSON response or a HTML response including a JSON encoded inertia
     page object according to Inertia request headers.
 
-    ```
-    from flask_inertia import render_inertia
+    .. code-block:: python
 
-    app = Flask(__name__)
+       from flask_inertia import render_inertia
 
-    @app.route("/")
-    def index():
-        data = {
-            "username": "foo",
-            "login": "bar",
-        }
-        return render_inertia(
-            component_name="Index",  # this must exists in your frontend
-            props=data,  # optional
-        )
-    ```
+       app = Flask(__name__)
+
+       @app.route("/")
+       def index():
+           data = {
+               "username": "foo",
+               "login": "bar",
+           }
+           return render_inertia(
+               component_name="Index",  # this must exists in your frontend
+               props=data,  # optional
+           )
 
     :param component_name: The component name used in your frontend framework
     :param props: A dict of properties used in your component

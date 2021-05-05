@@ -131,13 +131,13 @@ class Inertia:
     def context_processor():
         """Add an `inertia` directive to Jinja2 template to allow router inclusion
 
-        ```
-        <head>
-          <script lang="javascript">
-            {{ inertia.include_router() }}
-          </script>
-        </head>
-        ```
+        .. code-block:: html
+
+           <head>
+             <script lang="javascript">
+               {{ inertia.include_router() }}
+             </script>
+           </head>
         """
         return {
             "inertia": current_app.extensions["inertia"],
