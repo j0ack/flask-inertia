@@ -62,7 +62,7 @@ setup(
     install_requires=requirements,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "License :: OSI Approved :: MIT",
+        "License :: OSI Approved :: MIT License",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",
         "Operating System :: OS Independent",
