@@ -69,7 +69,7 @@ class TestInertia(unittest.TestCase):
         )
         self.app.add_url_rule("/partial/", "partial", partial_loading)
 
-        Inertia(self.app)
+        self.inertia = Inertia(self.app)
 
         self.client = self.app.test_client()
 
@@ -103,6 +103,7 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b"props", response.data)
         self.assertIn(b"url", response.data)
         self.assertIn(b"version", response.data)
+        self.assertIn(b"http://localhost/", response.data)
         self.assertFalse(response.is_json)
 
     def test_wrong_version(self):
@@ -126,6 +127,7 @@ class TestInertia(unittest.TestCase):
             }
             response = self.client.get("/", headers=headers)
             self.assertEqual(response.status_code, 200)
+            self.assertIn(b"http://localhost/", response.data)
             self.assertTrue(response.is_json)
 
     def test_redirect_303_for_put_patch_delete_requests(self):
@@ -143,6 +145,7 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b'"a": "a"', response.data)
         self.assertIn(b'"b": "b"', response.data)
         self.assertIn(b'"c": "c"', response.data)
+        self.assertIn(b"http://localhost/partial/", response.data)
 
         version_match = re.search(
             r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
@@ -168,6 +171,27 @@ class TestInertia(unittest.TestCase):
             b'window.routes={"index":"/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
             response.data,
         )
+
+    def test_share_values(self):
+        self.inertia.share("foo", "bar")
+        response = self.client.get("/")
+        self.assertIn(b'"foo": "bar"', response.data)
+
+    def test_share_computed_values(self):
+        def shared_data():
+            return "buzz"
+
+        self.inertia.share("fizz", shared_data)
+        response = self.client.get("/")
+        self.assertIn(b'"fizz": "buzz"', response.data)
+
+    def test_share_value_in_props(self):
+        self.inertia.share("a", "shared_data")
+        response = self.client.get("/partial/")
+        self.assertIn(b'"a": "a"', response.data)
+        self.assertIn(b'"b": "b"', response.data)
+        self.assertIn(b'"c": "c"', response.data)
+        self.assertIn(b'"shared_a": "shared_data"', response.data)
 
 
 if __name__ == "__main__":

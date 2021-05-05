@@ -31,7 +31,7 @@ Create a Flask extension to bind Flask and InertiaJS.
 """
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from flask import Flask, Markup, Response, current_app, request
 from jinja2 import Template
@@ -55,6 +55,7 @@ class Inertia:
         * Register after_request hook
         * Set context processor to have an `inertia` value in templates
         """
+        self._shared_data = {}
         if not hasattr(app, "extensions"):
             app.extensions = {}
         app.extensions["inertia"] = self
@@ -112,6 +113,19 @@ class Inertia:
             response.status_code = 303
 
         return response
+
+    def share(self, key: str, value: Any):
+        """Preassign shared data for each request.
+
+        Sometimes you need to access certain data on numerous pages within your
+        application. For example, a common use-case for this is showing the
+        current user in the site header. Passing this data manually in each
+        response isn't practical. In these situations shared data can be useful.
+
+        :param key: Data key to share between requests
+        :param value: Data value or Function returning the data value
+        """
+        self._shared_data[key] = value
 
     @staticmethod
     def context_processor():

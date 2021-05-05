@@ -76,13 +76,24 @@ def render_inertia(component_name: str, props: dict = {}) -> Response:
     ):
         props = {key: value for key, value in props.items() if key in refresh_props}
 
+    extension = current_app.extensions["inertia"]
+    for key, value in extension._shared_data.items():
+        # do not override
+        while key in props:
+            key = f"shared_{key}"
+
+        if callable(value):
+            props[key] = value()
+        else:
+            props[key] = value
+
     if request.headers.get("X-Inertia", False):
         response = jsonify(
             {
                 "component": component_name,
                 "props": props,
                 "version": inertia_version,
-                "url": request.full_path,
+                "url": request.url,
             }
         )
         response.headers["X-Inertia"] = True
@@ -92,7 +103,7 @@ def render_inertia(component_name: str, props: dict = {}) -> Response:
     context = {
         "page": {
             "version": inertia_version,
-            "url": request.full_path,
+            "url": request.url,
             "component": component_name,
             "props": props,
         },
