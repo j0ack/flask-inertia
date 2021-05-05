@@ -19,7 +19,6 @@ deploy:
   stage: deploy
   script:
     - pip install -U pip wheel twine
-  script:
     - python3 setup.py sdist bdist_wheel
     - twine upload dist/*
   only:
