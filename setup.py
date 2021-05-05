@@ -34,7 +34,7 @@ import os
 
 from setuptools import setup
 
-__version__ = "0.1b0"
+__version__ = "0.1"
 __author__ = "TROUVERIE Joachim"
 __contact__ = "jtrouverie@joakode.fr"
 

@@ -1,6 +1,7 @@
 image: python:3
 stages:
   - tests
+  - deploy
 
 before_script:
   - pip install -U -r requirements.txt
@@ -13,3 +14,14 @@ unit_tests:
     - coverage run --source=flask_inertia tests/
   after_script:
     - coverage report -m --fail-under=90
+
+deploy:
+  stage: deploy
+  script:
+    - pip install -U pip wheel twine
+  script:
+    - python3 setup.py sdist bdist_wheel
+    - twine upload dist/*
+  only:
+    - main
+    - tag
