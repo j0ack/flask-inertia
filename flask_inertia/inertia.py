@@ -87,7 +87,7 @@ class Inertia:
         if (
             request.method == "GET"
             and inertia_version
-            and inertia_version != str(server_version)
+            and inertia_version != server_version
         ):
             response = Response("Inertia versions does not match", status=409)
             response.headers["X-Inertia-Location"] = request.full_path

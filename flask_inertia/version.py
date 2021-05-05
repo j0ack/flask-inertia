@@ -27,13 +27,23 @@
 flask_inertia.version
 ---------------------
 
-Provide a method to calculate Flask endpoints version.
+Provide a method to calculate Flask assets version.
 """
 
-from flask import current_app, request
+import hashlib
+import os
+
+from flask import current_app
 
 
-def get_asset_version() -> int:
+def get_asset_version() -> str:
     """Calculate asset version to allow Inertia to automatically make a full page visit in case of changes."""
-    endpoint = request.endpoint
-    return hash(current_app.view_functions[endpoint])
+    template_path = os.path.join(
+        current_app.root_path,
+        current_app.template_folder,
+        current_app.config["INERTIA_TEMPLATE"],
+    )
+    with open(template_path, "rb") as template_file:
+        bytes_content = template_file.read()
+
+    return hashlib.sha256(bytes_content).hexdigest()

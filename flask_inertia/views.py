@@ -30,17 +30,12 @@ flask_inertia.views
 Implement a method to add Inertia rendering into Flask.
 """
 
-
-from typing import Optional
-
 from flask import Response, abort, current_app, jsonify, render_template, request
 
 from flask_inertia.version import get_asset_version
 
 
-def render_inertia(
-    component_name: str, props: dict = {}, template_name: Optional[str] = None
-) -> Response:
+def render_inertia(component_name: str, props: dict = {}) -> Response:
     """Method to use instead of Flask `render_template`.
 
     Returns either a JSON response or a HTML response including a JSON encoded inertia
@@ -60,23 +55,20 @@ def render_inertia(
         return render_inertia(
             component_name="Index",  # this must exists in your frontend
             props=data,  # optional
-            template_name="base.html",  # override current app config INERTIA_TEMPLATE
         )
     ```
 
     :param component_name: The component name used in your frontend framework
     :param props: A dict of properties used in your component
-    :param template_name: A Jinja2 template name used by Flask to render the component
     """
-    inertia_version = get_asset_version()
-    inertia_template = template_name or current_app.config.get("INERTIA_TEMPLATE")
+    inertia_template = current_app.config.get("INERTIA_TEMPLATE")
     if inertia_template is None:
         abort(
             400,
-            "No Inertia template found. Either set INERTIA_TEMPLATE"
-            + "in config or pass template parameter.",
+            "No Inertia template found. Set INERTIA_TEMPLATE in config",
         )
 
+    inertia_version = get_asset_version()
     refresh_props = request.headers.getlist("X-Inertia-Partial-Data")
     if (
         refresh_props
