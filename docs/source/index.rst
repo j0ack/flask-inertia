@@ -10,9 +10,6 @@ Welcome to Flask-Inertia's documentation
 
 `Inertiajs <https://inertiajs.com/>`_ Adapter for `Flask <https://flask.palletsprojects.com/>`_.
 
-This is still a **Work in progress** library, use it at your own risk.
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -174,4 +171,4 @@ read our :doc:`tutorial`.
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.0.7-red
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.8.7-red

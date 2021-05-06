@@ -4,8 +4,6 @@ Flask-Inertia
 |coverage| |version| |inertiaversion| |license|
 
 
-**Work In Progress**
-
 `Inertiajs <https://inertiajs.com/>`_ Adapter for `Flask <https://flask.palletsprojects.com/>`_.
 
 
@@ -161,4 +159,4 @@ read our `Tutorial <https://flask-inertia.readthedocs.io/en/latest/tutorial.html
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.0.7-red
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.8.7-red
