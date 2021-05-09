@@ -1,3 +1,4 @@
+# python
 docs/build
 venv
 __pycache__
@@ -6,3 +7,8 @@ dist
 lib
 .coverage
 *.egg-info
+
+# js
+node_modules
+package-lock.json
+tests/js/resolver.js

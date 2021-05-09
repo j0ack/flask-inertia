@@ -1,0 +1,29 @@
+{
+  "name": "flask-inertia",
+  "version": "0.2.0",
+  "description": "Tests flask-inertia JS routes",
+  "private": true,
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.joakode.fr/joack/flask-inertia.git"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.6.3"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "tests/js/resolver.js"
+    ],
+    "coverageDirectory": ".coverage",
+    "moduleDirectories": [
+      "node_modules",
+      "tests/js/"
+    ],
+    "testRegex": "(/tests/js/unit/.*\\.spec)\\.js$"
+  }
+}
