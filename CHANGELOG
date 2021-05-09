@@ -1,5 +1,6 @@
 2021-05-09  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* V 0.2
 	* Fix duplicated shared data keys
+	* Accept typed argument in JS router
 2021-05-05  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* V 0.1
