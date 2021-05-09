@@ -6,14 +6,25 @@ stages:
 before_script:
   - pip install -U -r requirements.txt
 
-unit_tests:
+unit_tests_python:
   stage: tests
   coverage: '/\d+\%\s*$/'
   script:
     - pip install -U coverage
-    - coverage run --source=flask_inertia tests/
+    - coverage run --source=flask_inertia -m unittest tests.python.test_app
   after_script:
     - coverage report -m --fail-under=90
+
+unit_tests_js:
+  stage: tests
+  coverage: '/All\sfiles.*?\s+(\d+.\d+)/'
+  script:
+    - apt update
+    - apt install -y nodejs npm
+    - npm install
+    - python3 setup.py install
+    - python3 tests/js/setup.py
+    - npm run test
 
 deploy:
   stage: deploy

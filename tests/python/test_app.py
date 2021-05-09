@@ -23,17 +23,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
 import re
-import sys
 import unittest
 from unittest.mock import patch
 
 from flask import Flask, redirect, url_for
 
-sys.path.append(os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
-
-from flask_inertia import Inertia, render_inertia  # noqa: E402
+from flask_inertia import Inertia, render_inertia
 
 
 class TestConfig:
