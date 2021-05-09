@@ -15,6 +15,7 @@ import sys
 
 sys.path.insert(0, op.abspath(op.dirname(op.dirname(op.dirname(__file__)))))
 
+from flask_inertia import __version__  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
@@ -23,7 +24,7 @@ copyright = "2021, TROUVERIE Joachim"
 author = "TROUVERIE Joachim"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1b0"
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
