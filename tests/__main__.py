@@ -185,13 +185,13 @@ class TestInertia(unittest.TestCase):
         response = self.client.get("/")
         self.assertIn(b'"fizz": "buzz"', response.data)
 
-    def test_share_value_in_props(self):
-        self.inertia.share("a", "shared_data")
+    def test_not_duplicated_shared_value_in_props(self):
+        self.inertia.share("e", "shared_data")
         response = self.client.get("/partial/")
-        self.assertIn(b'"a": "a"', response.data)
-        self.assertIn(b'"b": "b"', response.data)
-        self.assertIn(b'"c": "c"', response.data)
-        self.assertIn(b'"shared_a": "shared_data"', response.data)
+        self.assertIn(b'"e": "shared_data"', response.data)
+        response = self.client.get("/partial/")
+        self.assertIn(b'"e": "shared_data"', response.data)
+        self.assertNotIn(b"shared_e", response.data)
 
 
 if __name__ == "__main__":

@@ -78,10 +78,6 @@ def render_inertia(component_name: str, props: dict = {}) -> Response:
 
     extension = current_app.extensions["inertia"]
     for key, value in extension._shared_data.items():
-        # do not override
-        while key in props:
-            key = f"shared_{key}"
-
         if callable(value):
             props[key] = value()
         else:
