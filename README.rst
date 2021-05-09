@@ -113,7 +113,6 @@ of Flask ``render_template`` method::
       return render_inertia(
           component_name="Index",
           props=data,
-          template_name="base.html",
       )
 
 This method take 2 arguments:
