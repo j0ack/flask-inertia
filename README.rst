@@ -155,6 +155,13 @@ resolution.
 To see a complete exemple on how to implement a project with this adapter, please
 read our `Tutorial <https://flask-inertia.readthedocs.io/en/latest/tutorial.html>`_.
 
+Contributing
+------------
+
+If you want to contribute to this project, please read the dedicated file :
+`CONTRIBUTING.rst`.
+
+
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
