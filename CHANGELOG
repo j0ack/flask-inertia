@@ -1,3 +1,7 @@
+2021-08-08  TROUVERIE Joachim  <jtrouverie@joakode.fr>
+	* V 0.3
+	* Fix old Flask dependency
+	* Update tutorial doc with inertia-vue3 last version
 2021-05-09  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* V 0.2
 	* Fix duplicated shared data keys

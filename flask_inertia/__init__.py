@@ -35,4 +35,4 @@ from flask_inertia.inertia import Inertia
 from flask_inertia.views import render_inertia
 
 __all__ = ["Inertia", "render_inertia"]
-__version__ = "0.2"
+__version__ = "0.3"
