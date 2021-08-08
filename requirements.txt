@@ -1,2 +1,2 @@
-Flask==1.1.2
-jsmin==2.2.2
+Flask>=1.1.2
+jsmin>=2.2.2

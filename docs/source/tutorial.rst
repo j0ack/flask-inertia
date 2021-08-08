@@ -212,38 +212,32 @@ Next, modify the ``static/vue/src/main.ts`` file as followed:
 .. code:: typescript
 
     import { createApp, h } from 'vue'
-    import { App, plugin } from '@inertiajs/inertia-vue3'
-    import store from './store'
+    import { createInertiaApp } from '@inertiajs/inertia-vue3'
 
-    const container = document.getElementById('app')
-    if (!container) {
-      throw 'Main container not found'
+    type StrOrNum = string | number
+
+    // type window.reverseUrl method
+    declare global {
+      interface Window {
+        reverseUrl(urlName: string, args?: Record<string, unknown> | StrOrNum | StrOrNum[]): string
+      }
     }
 
-    const pageData = (container.dataset || {}).page
-    if (!pageData) {
-      throw 'No dataset page found in root container'
-    }
-
-    const app = createApp({
-      render: () => h(App, {
-        initialPage: JSON.parse(pageData),
-        resolveComponent: async name => {
-          const page = await import(`./pages/${name}`)
-          return page.default
-        }
-      })
+    createInertiaApp({
+      resolve: async name => {
+        const page = await import(`./pages/${name}`)
+        return page.default
+      },
+      setup({ el, app, props, plugin }) {
+        const vueApp = createApp({ render: () => h(app, props) })
+        // use plugin and store if enabled
+        vueApp.use(plugin)
+        // set global method to use window.reverseUrl
+        vueApp.config.globalProperties.$route = window.reverseUrl
+        // mount
+        vueApp.mount(el)
+      }
     })
-
-    // use plugin and store if enabled
-    app.use(plugin)
-    app.use(store)
-
-    // set global method to use window.reverseUrl
-    app.config.globalProperties.$route = (window as any).reverseUrl
-
-    // mount
-    app.mount(container)
 
 
 Create your views
@@ -303,7 +297,7 @@ can be implemented as followed:
        name: 'Index',
        props: {
          foo: String,
-         fix: String,
+         fiz: String,
          num: Number
        }
      })
