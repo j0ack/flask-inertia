@@ -211,33 +211,58 @@ Next, modify the ``static/vue/src/main.ts`` file as followed:
 
 .. code:: typescript
 
-    import { createApp, h } from 'vue'
-    import { createInertiaApp } from '@inertiajs/inertia-vue3'
+   import { createApp, h, App } from 'vue'
+   import { createInertiaApp } from '@inertiajs/inertia-vue3'
+   import '@/css/app.css'
 
-    type StrOrNum = string | number
+   type StrOrNum = string | number
 
-    // type window.reverseUrl method
-    declare global {
-      interface Window {
-        reverseUrl(urlName: string, args?: Record<string, unknown> | StrOrNum | StrOrNum[]): string
-      }
-    }
+   declare global {
+     interface Window {
+       reverseUrl(urlName: string, args?: Record<string, unknown> | StrOrNum | StrOrNum[]): string
+     }
+   }
 
-    createInertiaApp({
-      resolve: async name => {
-        const page = await import(`./pages/${name}`)
-        return page.default
-      },
-      setup({ el, app, props, plugin }) {
-        const vueApp = createApp({ render: () => h(app, props) })
-        // use plugin and store if enabled
-        vueApp.use(plugin)
-        // set global method to use window.reverseUrl
-        vueApp.config.globalProperties.$route = window.reverseUrl
-        // mount
-        vueApp.mount(el)
-      }
-    })
+   // create a plugin to use window.reverseUrl in our Components
+   const routePlugin = {
+     install: (app: App, _options: Record<string, unknown>) => {
+       app.config.globalProperties.$route = window.reverseUrl
+     }
+   }
+
+   createInertiaApp({
+     resolve: async name => {
+       const page = await import(`./pages/${name}`)
+       return page.default
+     },
+     setup({ el, app, props, plugin }) {
+       const vueApp = createApp({ render: () => h(app, props) })
+       vueApp.use(plugin)
+       vueApp.use(routePlugin)
+       vueApp.mount(el)
+     }
+   })
+
+
+In order to tell ``TypeScript`` about this new property ``$route``, we are going to use
+module augmentation as mentioned in
+`Vue 3 documentation <https://v3.vuejs.org/guide/typescript-support.html#augmenting-types-for-globalproperties>`_.
+
+Create a new ``route-plugin.d.ts`` which will be used by ``TypeScript`` to determine
+components' global methods:
+
+.. code:: typescript
+
+   import { Inertia } from '@inertiajs/inertia'
+
+   type StrOrNum = string | number
+
+   declare module '@vue/runtime-core' {
+     export interface ComponentCustomProperties {
+       $route: (urlName: string, args?: Record<string, unknown> | StrOrNum | StrOrNum[]): string
+       $inertia: typeof Inertia
+     }
+   }
 
 
 Create your views
@@ -291,14 +316,23 @@ can be implemented as followed:
    </template>
 
    <script>
-     import defineComponent from 'vue'
+     import { defineComponent, PropType } from 'vue'
 
      export default defineComponent({
        name: 'Index',
        props: {
-         foo: String,
-         fiz: String,
-         num: Number
+         foo: {
+           type: String as PropType<string>,
+           required: true
+         },
+         fiz: {
+           type: String as PropType<string>,
+           required: true
+         },
+         num: {
+           type: Number as PropType<number>,
+           required: true
+         },
        }
      })
    </script>
@@ -325,7 +359,7 @@ can be implemented as followed:
 
 
 For more options creating your views, please read the provided
-`Inertia documetation <https://inertiajs.com/pages>`_.
+`Inertia documentation <https://inertiajs.com/pages>`_.
 
 Add links between your routes
 +++++++++++++++++++++++++++++
@@ -360,15 +394,14 @@ Flask-inertia provides a ``window.reverseUrl`` client side to allow Vue to acces
 Flask defined routes. The line
 
 .. code:: typescript
+  app.config.globalProperties.$route = window.reverseUrl
 
-   app.config.globalProperties.$route = (window as any).reverseUrl
 
 in the ``main.ts`` file make it usable in all the application components registering a
 ``$route`` method as a global property.
 
 To create Inertia requests, ``inertia-vue3`` implements a new Vue component named
-``inertia-link`` (or ``InertiaLink``). It can be used in the ``Index`` page as
-followed:
+``Link``. It can be used in the ``Index`` page as followed:
 
 .. code-block:: vue
 
@@ -386,9 +419,9 @@ followed:
          <span class="label">Num :</span>
          <span class="value">{{ num }}</span>
        </p>
-       <InertiaLink :href="$route('params')">
+       <Link :href="$route('params')">
          My params
-       </InertiaLink>
+       </Link>
     </div>
   </template>
 

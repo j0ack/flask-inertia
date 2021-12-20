@@ -164,7 +164,7 @@ If the value is a ``callable``, the module will resolve it during the response
 resolution.
 
 To see a complete exemple on how to implement a project with this adapter, please
-read our :doc:`tutorial`.
+read our :doc:`tutorial` or check this `demo project <https://github.com/j0ack/pingcrm-flask>`_.
 
 
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
