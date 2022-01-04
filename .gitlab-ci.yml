@@ -33,5 +33,7 @@ deploy:
     - python3 setup.py sdist bdist_wheel
     - twine upload dist/*
   only:
-    - main
-    - tag
+    refs:
+      - main
+    changes:
+      - flask_inertia/__init__.py
