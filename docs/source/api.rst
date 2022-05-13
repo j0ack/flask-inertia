@@ -9,3 +9,6 @@ API
 
 .. automodule:: flask_inertia.version
    :members:
+
+.. automodule:: flask_inertia.unittest
+   :members:

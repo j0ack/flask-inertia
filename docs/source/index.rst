@@ -15,6 +15,7 @@ Welcome to Flask-Inertia's documentation
    :caption: Contents:
 
    tutorial
+   unittest
    api
 
 
@@ -170,4 +171,4 @@ read our :doc:`tutorial` or check this `demo project <https://github.com/j0ack/p
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.10.1-cyan
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.11-cyan

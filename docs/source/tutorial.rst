@@ -394,6 +394,7 @@ Flask-inertia provides a ``window.reverseUrl`` client side to allow Vue to acces
 Flask defined routes. The line
 
 .. code:: typescript
+
   app.config.globalProperties.$route = window.reverseUrl
 
 
@@ -458,3 +459,10 @@ as followed:
    dev: dev-python dev-vue
 
 Then, run ``make dev`` to run your development environment.
+
+You can find a `Flask-Inertia/Vue3` skeleton template using our
+`cookiecutter template <https://github.com/j0ack/flask-inertia-vuejs3-cookiecutter>`_.
+
+.. code-block:: bash
+
+  $ cookiecutter https://github.com/j0ack/flask-inertia-vuejs3-cookiecutter
