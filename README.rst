@@ -165,4 +165,4 @@ If you want to contribute to this project, please read the dedicated file :
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.10.1-cyan
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.11-cyan

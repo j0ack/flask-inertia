@@ -30,12 +30,14 @@ flask_inertia.views
 Implement a method to add Inertia rendering into Flask.
 """
 
+from typing import Any, Dict
+
 from flask import Response, abort, current_app, jsonify, render_template, request
 
 from flask_inertia.version import get_asset_version
 
 
-def render_inertia(component_name: str, props: dict = {}) -> Response:
+def render_inertia(component_name: str, props: Dict[str, Any] = {}) -> Response:
     """Method to use instead of Flask `render_template`.
 
     Returns either a JSON response or a HTML response including a JSON encoded inertia

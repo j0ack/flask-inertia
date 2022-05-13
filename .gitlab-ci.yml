@@ -11,6 +11,7 @@ unit_tests_python:
   coverage: '/\d+\%\s*$/'
   script:
     - pip install -U coverage
+    - pip install -r tests_requirements.txt
     - coverage run --source=flask_inertia -m unittest tests.python.test_app
   after_script:
     - coverage report -m --fail-under=90

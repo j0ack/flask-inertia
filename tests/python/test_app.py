@@ -30,6 +30,7 @@ from unittest.mock import patch
 from flask import Flask, redirect, url_for
 
 from flask_inertia import Inertia, render_inertia
+from flask_inertia.unittest import InertiaTestResponse
 
 
 class TestConfig:
@@ -188,6 +189,94 @@ class TestInertia(unittest.TestCase):
         response = self.client.get("/partial/")
         self.assertIn(b'"e": "shared_data"', response.data)
         self.assertNotIn(b"shared_e", response.data)
+
+
+class TestInertiaTestUtils(unittest.TestCase):
+    """Flask-Inertia tests."""
+
+    def setUp(self):
+        self.app = Flask(__name__, template_folder=".")
+        self.app.config.from_object(TestConfig)
+        self.app.add_url_rule("/", "index", index)
+        self.app.add_url_rule(
+            "/users/", "users", users, methods=["PUT", "DELETE", "PATCH"]
+        )
+        self.app.add_url_rule("/partial/", "partial", partial_loading)
+
+        self.inertia = Inertia(self.app)
+
+        self.app.response_class = InertiaTestResponse
+        self.client = self.app.test_client()
+
+    def test_partial_loading(self):
+        response = self.client.get("/partial/")
+        data = response.inertia("app")
+        self.assertEqual(data.props.a, "a")
+        self.assertEqual(data.props.b, "b")
+        self.assertEqual(data.props.c, "c")
+        self.assertEqual(data.url, "http://localhost/partial/")
+
+        version_match = re.search(
+            r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
+        ).group()
+        assert version_match is not None
+        version = version_match.split(": ")[1].replace('"', "")
+
+        headers = {
+            "X-Inertia": "true",
+            "X-Inertia-Version": version,
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Inertia-Partial-Data": ["a"],
+            "X-Inertia-Partial-Component": "Partial",
+        }
+        response = self.client.get("/partial/", headers=headers)
+        data = response.inertia("app")
+        self.assertEqual(data.props.a, "a")
+        self.assertFalse(hasattr(data.props, "b"))
+        self.assertFalse(hasattr(data.props, "c"))
+
+    def test_share_values(self):
+        self.inertia.share("foo", "bar")
+        response = self.client.get("/")
+        data = response.inertia("app")
+        self.assertEqual(data.props.foo, "bar")
+
+    def test_share_computed_values(self):
+        def shared_data():
+            return "buzz"
+
+        self.inertia.share("fizz", shared_data)
+        response = self.client.get("/")
+        data = response.inertia("app")
+        self.assertEqual(data.props.fizz, "buzz")
+
+    def test_import_error(self):
+        import builtins
+
+        realimport = builtins.__import__
+
+        # replace builtins import with a mockup raising an ImportError
+        # when import BeautifulSoup
+        def mockupimport(name, *args, **kwargs):
+            if name == "bs4":
+                raise ImportError("Test")
+            return realimport(name, *args, **kwargs)
+
+        builtins.__import__ = mockupimport
+        response = self.client.get("/")
+        with self.assertRaises(ImportError) as exc:
+            response.inertia("app")
+
+        self.assertIn(
+            "flask-inertia needs BeautifulSoup to parse html messages",
+            exc.exception.msg,
+        )
+        self.assertIn(
+            "please install it using `pip install flask-inertia[tests]`",
+            exc.exception.msg,
+        )
+
+        builtins.__import__ = realimport
 
 
 if __name__ == "__main__":

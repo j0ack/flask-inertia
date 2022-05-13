@@ -31,8 +31,9 @@ InertiaJS adapter for Flask.
 """
 
 import os
+from typing import List
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 from flask_inertia import __version__
 
@@ -40,11 +41,16 @@ __author__ = "TROUVERIE Joachim"
 __contact__ = "jtrouverie@joakode.fr"
 
 
-requirements_filepath = os.path.join(
-    os.path.abspath(os.path.dirname(__file__)), "requirements.txt"
-)
-with open(requirements_filepath, "r") as fi:
-    requirements = fi.read().split()
+def read_requirement_file(filename: str) -> List[str]:
+    filepath = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
+    with open(filepath, "r") as fi:
+        requirements = fi.read().split()
+
+    return requirements
+
+
+requirements = read_requirement_file("requirements.txt")
+tests_requirements = read_requirement_file("tests_requirements.txt")
 
 
 setup(
@@ -57,10 +63,11 @@ setup(
     description="Inertiajs Adapter for Flask.",
     include_package_data=True,
     long_description=open("README.rst").read(),
-    packages=["flask_inertia"],
+    packages=find_packages(include=["flask_inertia", "flask_inertia.*"]),
     zip_safe=False,
     platforms="any",
     install_requires=requirements,
+    extras_require={"tests": tests_requirements},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "License :: OSI Approved :: MIT License",
