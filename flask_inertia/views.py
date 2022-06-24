@@ -37,7 +37,11 @@ from flask import Response, abort, current_app, jsonify, render_template, reques
 from flask_inertia.version import get_asset_version
 
 
-def render_inertia(component_name: str, props: Dict[str, Any] = {}) -> Response:
+def render_inertia(
+    component_name: str,
+    props: Dict[str, Any] = {},
+    view_data: Dict[str, Any] = {},
+) -> Response:
     """Method to use instead of Flask `render_template`.
 
     Returns either a JSON response or a HTML response including a JSON encoded inertia
@@ -58,10 +62,12 @@ def render_inertia(component_name: str, props: Dict[str, Any] = {}) -> Response:
            return render_inertia(
                component_name="Index",  # this must exists in your frontend
                props=data,  # optional
+               view_data={"description": "FooBar"},  # optional
            )
 
     :param component_name: The component name used in your frontend framework
     :param props: A dict of properties used in your component
+    :param view_data: A dict of data that will not be sent to your JavaScript component
     """
     inertia_template = current_app.config.get("INERTIA_TEMPLATE")
     if inertia_template is None:
@@ -99,6 +105,7 @@ def render_inertia(component_name: str, props: Dict[str, Any] = {}) -> Response:
         return response
 
     context = {
+        "view_data": view_data,
         "page": {
             "version": inertia_version,
             "url": request.url,

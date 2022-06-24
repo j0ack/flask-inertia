@@ -2,6 +2,11 @@
   <head>
     <title>My app</title>
     <script lang="javascript">{{ inertia.include_router() }}</script>
+    {% if view_data %}
+      {% for key, value in view_data.items() %}
+        <meta name="{{ key }}" content="{{ value }}">
+      {% endfor %}
+    {% endif %}
   </head>
   <body>
     <div id="app" data-page='{{ page | tojson }}'></div>
