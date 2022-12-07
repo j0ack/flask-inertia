@@ -1,6 +1,9 @@
 <html>
   <head>
     <title>My app</title>
+    {% if 'foo' in page['props'] %}
+      <meta name="author" content="{{ page['props']['foo'] }}">
+    {% endif %}
     <script lang="javascript">{{ inertia.include_router() }}</script>
     {% if view_data %}
       {% for key, value in view_data.items() %}

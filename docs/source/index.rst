@@ -125,13 +125,43 @@ of Flask ``render_template`` method::
       return render_inertia(
           component_name="Index",
           props=data,
+          view_data={},
       )
 
-This method take 2 arguments:
+This method take 3 arguments:
 
   * ``component_name``: Your frontend component name (eg "Index" for an Index.vue
     Component for example)
   * ``props``: [OPTIONAL] Data used by your component
+  * ``view_data``: [OPTIONAL] Data used in your template but not sent to your JavaScript
+    components
+
+Root template data
+++++++++++++++++++
+
+There are situations where you may want to access your prop data in your root Jinja2
+template. These props are available via the ``page`` variable.
+
+.. code:: jinja
+
+   <meta name="author" content="{{ page['props']['username'] }}">
+
+You may want to provide data that will not be sent to your JavaScript components.
+You can do this using the ``view_data`` dictionnary in the ``render_inertia`` method::
+
+  return render_inertia(
+      component_name="Index",
+      props=data,
+      view_data={
+          "description": "A test page"
+      }
+  )
+
+You can then access this variable with the template variable ``view_data``.
+
+.. code:: jinja
+
+   <meta name="content" content="{{ view_data['description'] }}">
 
 
 Share data between requests
