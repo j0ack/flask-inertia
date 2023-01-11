@@ -41,7 +41,7 @@ __author__ = "TROUVERIE Joachim"
 __contact__ = "jtrouverie@joakode.fr"
 
 
-def read_requirement_file(filename: str) -> List[str]:
+def read_requirement_file(filename: str) -> List[str]:  # noqa: D103
     filepath = os.path.join(os.path.abspath(os.path.dirname(__file__)), filename)
     with open(filepath, "r") as fi:
         requirements = fi.read().split()
