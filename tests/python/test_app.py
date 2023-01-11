@@ -54,6 +54,14 @@ def partial_loading():
     )
 
 
+def meta():
+    return render_inertia(
+        "Meta",
+        props={"a": "a", "b": "b", "c": "c", "foo": "bar"},
+        view_data={"description": "A test page"},
+    )
+
+
 class TestInertia(unittest.TestCase):
     """Flask-Inertia tests."""
 
@@ -65,6 +73,7 @@ class TestInertia(unittest.TestCase):
             "/users/", "users", users, methods=["PUT", "DELETE", "PATCH"]
         )
         self.app.add_url_rule("/partial/", "partial", partial_loading)
+        self.app.add_url_rule("/meta/", "meta", meta)
 
         self.inertia = Inertia(self.app)
 
@@ -165,7 +174,7 @@ class TestInertia(unittest.TestCase):
     def test_include_router(self):
         response = self.client.get("/")
         self.assertIn(
-            b'window.routes={"index":"/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
+            b'window.routes={"index":"/","meta":"/meta/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
             response.data,
         )
 
@@ -190,6 +199,13 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b'"e": "shared_data"', response.data)
         self.assertNotIn(b"shared_e", response.data)
 
+    def test_page_meta(self):
+        response = self.client.get("/meta/")
+        self.assertIn(b'<meta name="author" content="bar">', response.data)
+        self.assertIn(
+            b'<meta name="description" content="A test page">', response.data
+        )
+
 
 class TestInertiaTestUtils(unittest.TestCase):
     """Flask-Inertia tests."""
@@ -202,6 +218,7 @@ class TestInertiaTestUtils(unittest.TestCase):
             "/users/", "users", users, methods=["PUT", "DELETE", "PATCH"]
         )
         self.app.add_url_rule("/partial/", "partial", partial_loading)
+        self.app.add_url_rule("/meta/", "meta", meta)
 
         self.inertia = Inertia(self.app)
 
@@ -277,6 +294,11 @@ class TestInertiaTestUtils(unittest.TestCase):
         )
 
         builtins.__import__ = realimport
+
+    def view_data_not_in_js_context(self):
+        response = self.client.get("/meta/")
+        data = response.inertia("app")
+        self.assertFalse(hasattr(data.props, "description"))
 
 
 if __name__ == "__main__":
