@@ -78,6 +78,10 @@ def render_inertia(
 
     inertia_version = get_asset_version()
     refresh_props = request.headers.getlist("X-Inertia-Partial-Data")
+    if len(refresh_props) == 1 and "," in refresh_props[0]:
+        refresh_props = list(
+            filter(None, request.headers.get("X-Inertia-Partial-Data", "").split(","))
+        )
     if (
         refresh_props
         and request.headers.get("X-Inertia-Partial-Component", "") == component_name
