@@ -33,9 +33,10 @@ Create a Flask extension to bind Flask and InertiaJS.
 import os
 from typing import Any, Optional
 
-from flask import Flask, Markup, Response, current_app, request
+from flask import Flask, Response, current_app, request
 from jinja2 import Template
 from jsmin import jsmin
+from markupsafe import Markup
 from werkzeug.exceptions import BadRequest
 
 from flask_inertia.version import get_asset_version
