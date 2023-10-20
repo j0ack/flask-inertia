@@ -6,7 +6,7 @@ repos:
     - id: end-of-file-fixer
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 3.8.3
+  rev: 6.1.0
   hooks:
     - id: flake8
 
