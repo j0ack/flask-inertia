@@ -146,7 +146,7 @@ class TestInertia(unittest.TestCase):
         response = self.client.patch("/users/", data={})
         self.assertEqual(response.status_code, 303)
 
-    def test_partial_loading(self):
+    def test_partial_loading_with_multiplie_partial_data_headers(self):
         response = self.client.get("/partial/")
         self.assertIn(b'"a": "a"', response.data)
         self.assertIn(b'"b": "b"', response.data)
@@ -169,6 +169,31 @@ class TestInertia(unittest.TestCase):
         response = self.client.get("/partial/", headers=headers)
         self.assertIn(b'"a":"a"', response.data)
         self.assertNotIn(b'"b": "b"', response.data)
+        self.assertNotIn(b'"c": "c"', response.data)
+
+    def test_partial_loading_with_comma_separated_props_in_partial_data_header(self):
+        response = self.client.get("/partial/")
+        self.assertIn(b'"a": "a"', response.data)
+        self.assertIn(b'"b": "b"', response.data)
+        self.assertIn(b'"c": "c"', response.data)
+        self.assertIn(b"http://localhost/partial/", response.data)
+
+        version_match = re.search(
+            r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
+        ).group()
+        assert version_match is not None
+        version = version_match.split(": ")[1].replace('"', "")
+
+        headers = {
+            "X-Inertia": "true",
+            "X-Inertia-Version": version,
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Inertia-Partial-Data": ["a,b"],
+            "X-Inertia-Partial-Component": "Partial",
+        }
+        response = self.client.get("/partial/", headers=headers)
+        self.assertIn(b'"a":"a"', response.data)
+        self.assertIn(b'"b":"b"', response.data)
         self.assertNotIn(b'"c": "c"', response.data)
 
     def test_include_router(self):
