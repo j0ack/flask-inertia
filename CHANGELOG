@@ -1,8 +1,8 @@
 2023-10-20  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* v0.6
-	* fix: upgrade isort pre-commit hook to work with newer Python version @cristianrash
-	* fix: handling of the X-Inertia-Partial-Data header @cristianrash
-	* fix: import Markup from markupsafe @cristianrash
+	* fix: upgrade isort pre-commit hook to work with newer Python version @cristianrasch
+	* fix: handling of the X-Inertia-Partial-Data header @cristianrasch
+	* fix: import Markup from markupsafe @cristianrasch
 2023-01-11  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* V 0.5
 	* Implement root template data
