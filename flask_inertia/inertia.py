@@ -31,6 +31,7 @@ Create a Flask extension to bind Flask and InertiaJS.
 """
 
 import os
+from http import HTTPStatus
 from typing import Any, Optional
 
 from flask import Flask, Response, current_app, request
@@ -91,7 +92,9 @@ class Inertia:
             and inertia_version
             and inertia_version != server_version
         ):
-            response = Response("Inertia versions does not match", status=409)
+            response = Response(
+                "Inertia versions does not match", status=HTTPStatus.CONFLICT
+            )
             response.headers["X-Inertia-Location"] = request.full_path
             return response
 
@@ -109,9 +112,9 @@ class Inertia:
         """
         if (
             request.method in ["PUT", "PATCH", "DELETE"]
-            and response.status_code == 302
+            and response.status_code == HTTPStatus.FOUND  # 302
         ):
-            response.status_code = 303
+            response.status_code = HTTPStatus.SEE_OTHER  # 303
 
         return response
 
