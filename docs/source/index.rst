@@ -167,7 +167,7 @@ External redirects
 ++++++++++++++++++
 
 It is possible to redirect to an external website, or even another non-Inertia endpoint
-in yourapp while handling an Inertia request. This can be accomplished using a
+in your app while handling an Inertia request. This can be accomplished using a
 server-side initiated ``window.location`` visit via the ``inertia_location`` method::
 
   from flask_inertia import inertia_location

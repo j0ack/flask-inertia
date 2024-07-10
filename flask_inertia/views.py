@@ -129,7 +129,6 @@ def inertia_location(location: str) -> Response:
 
     Returns a server-side initiated window.location visit.
 
-
     This method will generate a 409 Conflict response and include the destination
     URL in the X-Inertia-Location header. When this response is received
     client-side, Inertia will automatically perform a window.location = url visit.
