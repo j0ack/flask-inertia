@@ -130,11 +130,36 @@ of Flask ``render_template`` method::
 
 This method take 3 arguments:
 
-  * ``component_name``: Your frontend component name (eg "Index" for an Index.vue
+  * ``component_name``: Your frontend component name (e.g. "Index" for an Index.vue
     Component for example)
   * ``props``: [OPTIONAL] Data used by your component
   * ``view_data``: [OPTIONAL] Data used in your template but not sent to your JavaScript
     components
+
+Shorthand routes
+++++++++++++++++
+
+If you have a page that does not need a corresponding controller method (i.e. a frontend
+component which does not need ``props`` nor ``view_data``), like a "FAQ" or "about" page,
+you can route directly to a component via the ``add_shorthand_route`` method::
+
+  from flask import Flask
+  from flask_inertia import Inertia
+
+  app = Flask(__name__)
+  app.config.from_object(__name__)
+  inertia = Inertia(app)
+
+  inertia.add_shorthand_route("/faq/", "FAQ")
+  inertia.add_shorthand_route("/about/", "About")
+
+
+This method takes 2 arguments:
+
+  * ``url``: The URL rule as string as used in ``flask.add_url_rule``
+  * ``component_name``: Your frontend component name (e.g. "Index" for an Index.vue
+    Component for example)
+
 
 Root template data
 ++++++++++++++++++
