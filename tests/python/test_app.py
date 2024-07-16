@@ -97,6 +97,15 @@ class TestInertia(unittest.TestCase):
         self.assertIsNotNone(app.extensions)
         self.assertIn("inertia", app.extensions)
 
+    def test_bad_extension_init(self):
+        inertia = Inertia()
+        with self.assertRaises(RuntimeError) as ctx:
+            inertia.add_shorthand_route("/faq/", "FAQ")
+
+        self.assertIn(
+            "Extension has not been initialized correctly", str(ctx.exception)
+        )
+
     def test_bad_request(self):
         headers = {
             "X-Requested-With": "XMLHttpRequest",
