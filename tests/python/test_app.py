@@ -82,6 +82,8 @@ class TestInertia(unittest.TestCase):
         self.app.add_url_rule("/meta/", "meta", meta)
 
         self.inertia = Inertia(self.app)
+        self.inertia.add_shorthand_route("/faq/", "FAQ")
+        self.inertia.add_shorthand_route("/about/", "About", "about page")
 
         self.client = self.app.test_client()
 
@@ -205,7 +207,7 @@ class TestInertia(unittest.TestCase):
     def test_include_router(self):
         response = self.client.get("/")
         self.assertIn(
-            b'window.routes={"external":"/external/","index":"/","meta":"/meta/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
+            b'window.routes={"about page":"/about/","external":"/external/","faq":"/faq/","index":"/","meta":"/meta/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
             response.data,
         )
 
@@ -246,6 +248,10 @@ class TestInertia(unittest.TestCase):
             "http://foobar.com/", response.headers["X-Inertia-Location"]
         )
 
+    def test_shorthand_route(self):
+        response = self.client.get("/faq/")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
 
 class TestInertiaTestUtils(unittest.TestCase):
     """Flask-Inertia tests."""
@@ -261,6 +267,7 @@ class TestInertiaTestUtils(unittest.TestCase):
         self.app.add_url_rule("/meta/", "meta", meta)
 
         self.inertia = Inertia(self.app)
+        self.inertia.add_shorthand_route("/faq/", "FAQ")
 
         self.app.response_class = InertiaTestResponse
         self.client = self.app.test_client()
@@ -339,6 +346,12 @@ class TestInertiaTestUtils(unittest.TestCase):
         response = self.client.get("/meta/")
         data = response.inertia("app")
         self.assertFalse(hasattr(data.props, "description"))
+
+    def test_shorthand_route(self):
+        response = self.client.get("/faq/")
+        data = response.inertia("app")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(data.component, "FAQ")
 
 
 if __name__ == "__main__":

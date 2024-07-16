@@ -151,15 +151,16 @@ you can route directly to a component via the ``add_shorthand_route`` method::
   inertia = Inertia(app)
 
   inertia.add_shorthand_route("/faq/", "FAQ")
-  inertia.add_shorthand_route("/about/", "About")
+  inertia.add_shorthand_route("/about/", "About", "My About Page")
 
 
-This method takes 2 arguments:
+This method takes 3 arguments:
 
   * ``url``: The URL rule as string as used in ``flask.add_url_rule``
   * ``component_name``: Your frontend component name (e.g. "Index" for an Index.vue
     Component for example)
-
+  * ``endpoint`` [OPTIONAL]: The endpoint for the registered URL rule. (by default the
+    ``component_name`` in lower case)
 
 Root template data
 ++++++++++++++++++
