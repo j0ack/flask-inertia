@@ -32,7 +32,7 @@ Inertiajs Adapter for Flask.
 """
 
 from flask_inertia.inertia import Inertia
-from flask_inertia.views import render_inertia
+from flask_inertia.views import inertia_location, render_inertia
 
-__all__ = ["Inertia", "render_inertia"]
-__version__ = "0.6"
+__all__ = ["Inertia", "render_inertia", "inertia_location"]
+__version__ = "0.7"

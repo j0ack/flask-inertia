@@ -30,6 +30,7 @@ flask_inertia.views
 Implement a method to add Inertia rendering into Flask.
 """
 
+from http import HTTPStatus
 from typing import Any, Dict
 
 from flask import Response, abort, current_app, jsonify, render_template, request
@@ -80,7 +81,9 @@ def render_inertia(
     refresh_props = request.headers.getlist("X-Inertia-Partial-Data")
     if len(refresh_props) == 1 and "," in refresh_props[0]:
         refresh_props = list(
-            filter(None, request.headers.get("X-Inertia-Partial-Data", "").split(","))
+            filter(
+                None, request.headers.get("X-Inertia-Partial-Data", "").split(",")
+            )
         )
     if (
         refresh_props
@@ -119,3 +122,29 @@ def render_inertia(
     }
 
     return render_template(inertia_template, **context)
+
+
+def inertia_location(location: str) -> Response:
+    """Redirects to an external website, or even another non-Inertia endpoint.
+
+    Returns a server-side initiated window.location visit.
+
+    This method will generate a 409 Conflict response and include the destination
+    URL in the X-Inertia-Location header. When this response is received
+    client-side, Inertia will automatically perform a window.location = url visit.
+
+    .. code-block:: python
+
+       from flask_inertia import inertia_location
+
+       app = Flask(__name__)
+
+       @app.route("/")
+       def index():
+           return inertia_location("http"//www.foobar.com/")
+
+    :param location: External location
+    """
+    response = Response("Inertia server side redirect", status=HTTPStatus.CONFLICT)
+    response.headers["X-Inertia-Location"] = location
+    return response

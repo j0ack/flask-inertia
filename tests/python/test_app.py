@@ -25,11 +25,12 @@
 
 import re
 import unittest
+from http import HTTPStatus
 from unittest.mock import patch
 
 from flask import Flask, redirect, url_for
 
-from flask_inertia import Inertia, render_inertia
+from flask_inertia import Inertia, inertia_location, render_inertia
 from flask_inertia.unittest import InertiaTestResponse
 
 
@@ -45,6 +46,10 @@ def index():
 
 def users():
     return redirect(url_for("index"))
+
+
+def external():
+    return inertia_location("http://foobar.com/")
 
 
 def partial_loading():
@@ -69,6 +74,7 @@ class TestInertia(unittest.TestCase):
         self.app = Flask(__name__, template_folder=".")
         self.app.config.from_object(TestConfig)
         self.app.add_url_rule("/", "index", index)
+        self.app.add_url_rule("/external/", "external", external)
         self.app.add_url_rule(
             "/users/", "users", users, methods=["PUT", "DELETE", "PATCH"]
         )
@@ -95,16 +101,16 @@ class TestInertia(unittest.TestCase):
             "X-Inertia-Version": "1000",
         }
         response = self.client.get("/", headers=headers)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
     def test_no_inertia_template(self):
         del self.app.config["INERTIA_TEMPLATE"]
         response = self.client.get("/")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, HTTPStatus.BAD_REQUEST)
 
     def test_non_inertia_view(self):
         response = self.client.get("/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, HTTPStatus.OK)
         self.assertIn(b"component", response.data)
         self.assertIn(b"props", response.data)
         self.assertIn(b"url", response.data)
@@ -121,7 +127,7 @@ class TestInertia(unittest.TestCase):
                 "X-Inertia-Version": "1000",
             }
             response = self.client.get("/", headers=headers)
-            self.assertEqual(response.status_code, 409)
+            self.assertEqual(response.status_code, HTTPStatus.CONFLICT)
 
     def test_request_modifiers(self):
         with patch("flask_inertia.inertia.get_asset_version") as get_version_mock:
@@ -132,19 +138,19 @@ class TestInertia(unittest.TestCase):
                 "X-Inertia-Version": "1",
             }
             response = self.client.get("/", headers=headers)
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.status_code, HTTPStatus.OK)
             self.assertIn(b"http://localhost/", response.data)
             self.assertTrue(response.is_json)
 
     def test_redirect_303_for_put_patch_delete_requests(self):
         response = self.client.put("/users/", data={})
-        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.status_code, HTTPStatus.SEE_OTHER)
 
         response = self.client.delete("/users/")
-        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.status_code, HTTPStatus.SEE_OTHER)
 
         response = self.client.patch("/users/", data={})
-        self.assertEqual(response.status_code, 303)
+        self.assertEqual(response.status_code, HTTPStatus.SEE_OTHER)
 
     def test_partial_loading_with_multiplie_partial_data_headers(self):
         response = self.client.get("/partial/")
@@ -199,7 +205,7 @@ class TestInertia(unittest.TestCase):
     def test_include_router(self):
         response = self.client.get("/")
         self.assertIn(
-            b'window.routes={"index":"/","meta":"/meta/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
+            b'window.routes={"external":"/external/","index":"/","meta":"/meta/","partial":"/partial/","static":"/static/<path:filename>","users":"/users/"}',
             response.data,
         )
 
@@ -229,6 +235,15 @@ class TestInertia(unittest.TestCase):
         self.assertIn(b'<meta name="author" content="bar">', response.data)
         self.assertIn(
             b'<meta name="description" content="A test page">', response.data
+        )
+
+    def test_backend_redirect(self):
+        response = self.client.get("/external/")
+        self.assertEqual(response.status_code, HTTPStatus.CONFLICT)
+        self.assertEqual(b"Inertia server side redirect", response.data)
+        self.assertIn("X-Inertia-Location", response.headers)
+        self.assertEqual(
+            "http://foobar.com/", response.headers["X-Inertia-Location"]
         )
 
 

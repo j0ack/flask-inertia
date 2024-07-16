@@ -1,0 +1,21 @@
+name: Build python package and upload to pypi
+
+on:
+  push:
+    tags:
+      - v**
+
+jobs:
+  twine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install deps
+        run: python3 -m pip install -U pip wheel twine setuptools
+      - name: Build package
+        run: python3 setup.py sdist bdist_wheel
+      - name: Upload package
+        run: twine upload dist/*

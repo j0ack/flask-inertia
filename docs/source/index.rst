@@ -163,6 +163,23 @@ You can then access this variable with the template variable ``view_data``.
 
    <meta name="content" content="{{ view_data['description'] }}">
 
+External redirects
+++++++++++++++++++
+
+It is possible to redirect to an external website, or even another non-Inertia endpoint
+in your app while handling an Inertia request. This can be accomplished using a
+server-side initiated ``window.location`` visit via the ``inertia_location`` method::
+
+  from flask_inertia import inertia_location
+
+  @app.route("/test_inertia/")
+  def external_url():
+      return inertia_location("http://foobar.com/")
+
+
+It will generate a ``409 Conflict`` response and include the destination URL in
+the ``X-Inertia-Location`` header. When this response is received client-side,
+Inertia will automatically perform a ``window.location = url`` visit.
 
 Share data between requests
 +++++++++++++++++++++++++++
