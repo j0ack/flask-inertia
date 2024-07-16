@@ -48,6 +48,7 @@ class Inertia:
     """Inertia Plugin for Flask."""
 
     def __init__(self, app: Optional[Flask] = None):
+        self.app = None
         if app is not None:
             self.init_app(app)
 
@@ -182,6 +183,9 @@ class Inertia:
         :param endpoint: The endpoint for the registered URL rule. (by default
                          ``component_name`` in lower case)
         """
+        if not self.app:
+            raise RuntimeError("Extension has not been initialized correctly.")
+
         self.app.add_url_rule(
             url,
             endpoint or component_name.lower(),
