@@ -20,7 +20,7 @@ from flask_inertia import __version__  # noqa: E402
 # -- Project information -----------------------------------------------------
 
 project = "flask-inertia"
-copyright = "2021, TROUVERIE Joachim"
+copyright = "2024, TROUVERIE Joachim"
 author = "TROUVERIE Joachim"
 
 # The full version, including alpha/beta/rc tags
