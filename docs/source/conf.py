@@ -6,12 +6,14 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import os.path as op
+import sys
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os.path as op
-import sys
+from datetime import datetime
 
 sys.path.insert(0, op.abspath(op.dirname(op.dirname(op.dirname(__file__)))))
 
@@ -19,8 +21,10 @@ from flask_inertia import __version__  # noqa: E402
 
 # -- Project information -----------------------------------------------------
 
+today = datetime.today()
+
 project = "flask-inertia"
-copyright = "2021, TROUVERIE Joachim"
+copyright = f"{today.year}, TROUVERIE Joachim"
 author = "TROUVERIE Joachim"
 
 # The full version, including alpha/beta/rc tags

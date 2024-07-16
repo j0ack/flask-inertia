@@ -14,7 +14,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Install deps
-        run: python3 -m pip install -U pip wheel twine setuptools
+        run: |
+          python3 -m pip install -U pip wheel twine setuptools
+          pip install -U -r requirements.txt
       - name: Build package
         run: python3 setup.py sdist bdist_wheel
       - name: Upload package

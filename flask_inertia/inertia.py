@@ -41,12 +41,14 @@ from markupsafe import Markup
 from werkzeug.exceptions import BadRequest
 
 from flask_inertia.version import get_asset_version
+from flask_inertia.views import render_inertia
 
 
 class Inertia:
     """Inertia Plugin for Flask."""
 
     def __init__(self, app: Optional[Flask] = None):
+        self.app = None
         if app is not None:
             self.init_app(app)
 
@@ -57,6 +59,7 @@ class Inertia:
         * Register after_request hook
         * Set context processor to have an `inertia` value in templates
         """
+        self.app = app
         self._shared_data = {}
         if not hasattr(app, "extensions"):
             app.extensions = {}
@@ -166,3 +169,25 @@ class Inertia:
             content_minified = jsmin(content)
 
         return Markup(content_minified)
+
+    def add_shorthand_route(
+        self, url: str, component_name: str, endpoint: Optional[str] = None
+    ) -> None:
+        """Connect a URL rule to a frontend component that does not need a controller.
+
+        This url does not have dedicated python source code but is linked to a JS component,
+        (i.e. a frontend component which does not need props nor view_data).
+
+        :param url: The URL rule as string as used in ``flask.add_url_rule``
+        :param component_name: Your frontend component name
+        :param endpoint: The endpoint for the registered URL rule. (by default
+                         ``component_name`` in lower case)
+        """
+        if not self.app:
+            raise RuntimeError("Extension has not been initialized correctly.")
+
+        self.app.add_url_rule(
+            url,
+            endpoint or component_name.lower(),
+            lambda: render_inertia(component_name),
+        )
