@@ -8,6 +8,9 @@ on:
 jobs:
   twine:
     runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: ${{secrets.TWINE_USERNAME}}
+      TWINE_PASSWORD: ${{secrets.TWINE_PASSWORD}}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
