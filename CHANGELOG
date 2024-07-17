@@ -1,3 +1,6 @@
+2024-07-17  TROUVERIE Joachim  <jtrouverie@joakode.fr>
+	* v0.9
+	* new: manage lazy data evaluation on partial reloads
 2024-07-16  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* v0.8
 	* new: manage shorthand routes
