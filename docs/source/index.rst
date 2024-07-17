@@ -272,7 +272,7 @@ then will it evaluate the callable. This can significantly increase the performa
 of pages that contain a lot of optional data.
 
 Additionally, this module provides an ``lazy_include`` method to specify that a prop
-should never be included unless explicitly requested using the only ``option``. And
+should never be included unless explicitly requested using the ``only`` option. And
 on the inverse, you can use the ``always_include`` method to specify that a prop
 should always be included, even if it has not been explicitly required in a partial
 reload::
@@ -318,4 +318,4 @@ read our :doc:`tutorial` or check this `demo project <https://github.com/j0ack/p
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.11-cyan
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-1.2-cyan
