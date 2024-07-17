@@ -44,7 +44,7 @@ class LazyProp:
 
 
 class AlwaysProp:
-    """Wrapper o specify that a prop should always be included, even if it has not been explicitly required."""
+    """Wrapper to specify that a prop should always be included, even if it has not been explicitly required."""
 
     def __init__(self, prop: Any):
         self.value = prop
