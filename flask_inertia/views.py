@@ -31,10 +31,11 @@ Implement a method to add Inertia rendering into Flask.
 """
 
 from http import HTTPStatus
-from typing import Any, Dict
+from typing import Any, Callable, Dict
 
 from flask import Response, abort, current_app, jsonify, render_template, request
 
+from flask_inertia.props import AlwaysProp, LazyProp
 from flask_inertia.version import get_asset_version
 
 
@@ -89,20 +90,31 @@ def render_inertia(
         refresh_props
         and request.headers.get("X-Inertia-Partial-Component", "") == component_name
     ):
-        props = {key: value for key, value in props.items() if key in refresh_props}
+        props = {
+            key: value
+            for key, value in props.items()
+            if key in refresh_props or isinstance(value, AlwaysProp)
+        }
+    else:
+        props = {
+            key: value
+            for key, value in props.items()
+            if not callable(value) or not isinstance(value, LazyProp)
+        }
 
     extension = current_app.extensions["inertia"]
-    for key, value in extension._shared_data.items():
+    merged_props = {**props, **extension._shared_data}
+    for key, value in merged_props.items():
         if callable(value):
-            props[key] = value()
+            merged_props[key] = value()
         else:
-            props[key] = value
+            merged_props[key] = value
 
     if request.headers.get("X-Inertia", False):
         response = jsonify(
             {
                 "component": component_name,
-                "props": props,
+                "props": merged_props,
                 "version": inertia_version,
                 "url": request.url,
             }
@@ -117,7 +129,7 @@ def render_inertia(
             "version": inertia_version,
             "url": request.url,
             "component": component_name,
-            "props": props,
+            "props": merged_props,
         },
     }
 
@@ -148,3 +160,22 @@ def inertia_location(location: str) -> Response:
     response = Response("Inertia server side redirect", status=HTTPStatus.CONFLICT)
     response.headers["X-Inertia-Location"] = location
     return response
+
+
+def lazy_include(callback: Callable) -> LazyProp:
+    """Specify that a prop should never be included unless explicitly requested using the ``only`` option.
+
+    :param callback: Callable wrapping the props data
+    """
+    if not callable(callback):
+        raise ValueError("Props ``callback`` must be a callable.")
+
+    return LazyProp(callback)
+
+
+def always_include(prop_value: Any) -> AlwaysProp:
+    """Specify that a prop should always be included, even if it has not been explicitly required in a partial reload.
+
+    :param prop_value: The props data or a callable wrapping the data
+    """
+    return AlwaysProp(prop_value)
