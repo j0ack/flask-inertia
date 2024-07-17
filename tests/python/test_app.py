@@ -191,6 +191,10 @@ class TestInertia(unittest.TestCase):
         response = self.client.patch("/users/", data={})
         self.assertEqual(response.status_code, HTTPStatus.SEE_OTHER)
 
+    def test_invalid_lazy_include_type(self):
+        with self.assertRaises(ValueError):
+            dict(test=lazy_include("not a callable"))
+
     @parameterized.expand(
         [
             ("a", True, False, False, True),
