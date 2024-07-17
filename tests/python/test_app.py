@@ -29,8 +29,15 @@ from http import HTTPStatus
 from unittest.mock import patch
 
 from flask import Flask, redirect, url_for
+from parameterized import parameterized
 
-from flask_inertia import Inertia, inertia_location, render_inertia
+from flask_inertia import (
+    Inertia,
+    always_include,
+    inertia_location,
+    lazy_include,
+    render_inertia,
+)
 from flask_inertia.unittest import InertiaTestResponse
 
 
@@ -52,10 +59,31 @@ def external():
     return inertia_location("http://foobar.com/")
 
 
+def a() -> str:
+    return "a"
+
+
+def b() -> str:
+    return "b"
+
+
+def c() -> str:
+    return "c"
+
+
+def d() -> str:
+    return "d"
+
+
 def partial_loading():
     return render_inertia(
         "Partial",
-        props={"a": "a", "b": "b", "c": "c"},
+        props={
+            "a": a(),
+            "b": b,
+            "c": lazy_include(c),
+            "d": always_include(d()),
+        },
     )
 
 
@@ -163,36 +191,84 @@ class TestInertia(unittest.TestCase):
         response = self.client.patch("/users/", data={})
         self.assertEqual(response.status_code, HTTPStatus.SEE_OTHER)
 
-    def test_partial_loading_with_multiplie_partial_data_headers(self):
-        response = self.client.get("/partial/")
-        self.assertIn(b'"a": "a"', response.data)
-        self.assertIn(b'"b": "b"', response.data)
-        self.assertIn(b'"c": "c"', response.data)
-        self.assertIn(b"http://localhost/partial/", response.data)
+    def test_invalid_lazy_include_type(self):
+        with self.assertRaises(ValueError):
+            dict(test=lazy_include("not a callable"))
 
-        version_match = re.search(
-            r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
-        ).group()
-        assert version_match is not None
-        version = version_match.split(": ")[1].replace('"', "")
+    @parameterized.expand(
+        [
+            ("a", True, False, False, True),
+            ("a,c", True, False, True, True),
+            ("b,c", False, True, True, True),
+        ]
+    )
+    def test_partial_loading_with_multiple_partial_data_headers(
+        self, header, a_data, b_data, c_data, d_data
+    ):
+        with (
+            patch("tests.python.test_app.a") as a_mock,
+            patch("tests.python.test_app.b") as b_mock,
+            patch("tests.python.test_app.c") as c_mock,
+            patch("tests.python.test_app.d") as d_mock,
+        ):
+            a_mock.return_value = "a"
+            b_mock.return_value = "b"
+            c_mock.return_value = "c"
+            d_mock.return_value = "d"
 
-        headers = {
-            "X-Inertia": "true",
-            "X-Inertia-Version": version,
-            "X-Requested-With": "XMLHttpRequest",
-            "X-Inertia-Partial-Data": ["a"],
-            "X-Inertia-Partial-Component": "Partial",
-        }
-        response = self.client.get("/partial/", headers=headers)
-        self.assertIn(b'"a":"a"', response.data)
-        self.assertNotIn(b'"b": "b"', response.data)
-        self.assertNotIn(b'"c": "c"', response.data)
+            # standard visite
+            response = self.client.get("/partial/")
+            self.assertIn(b'"a": "a"', response.data)
+            self.assertIn(b'"b": "b"', response.data)
+            self.assertNotIn(b'"c": "c"', response.data)
+            self.assertIn(b'"d": "d"', response.data)
+            self.assertIn(b"http://localhost/partial/", response.data)
+
+            self.assertTrue(a_mock.called)
+            self.assertTrue(b_mock.called)
+            self.assertFalse(c_mock.called)
+            self.assertTrue(d_mock.called)
+
+        with (
+            patch("tests.python.test_app.a") as a_mock,
+            patch("tests.python.test_app.b") as b_mock,
+            patch("tests.python.test_app.c") as c_mock,
+            patch("tests.python.test_app.d") as d_mock,
+        ):
+            a_mock.return_value = "a"
+            b_mock.return_value = "b"
+            c_mock.return_value = "c"
+            d_mock.return_value = "d"
+
+            version_match = re.search(
+                r'"version": "[A-Fa-f0-9]{64}"', response.data.decode("utf-8")
+            ).group()
+            assert version_match is not None
+            version = version_match.split(": ")[1].replace('"', "")
+
+            headers = {
+                "X-Inertia": "true",
+                "X-Inertia-Version": version,
+                "X-Requested-With": "XMLHttpRequest",
+                "X-Inertia-Partial-Data": [header],
+                "X-Inertia-Partial-Component": "Partial",
+            }
+
+            response = self.client.get("/partial/", headers=headers)
+            self.assertEqual(b'"a":"a"' in response.data, a_data)
+            self.assertEqual(a_mock.called, True)
+            self.assertEqual(b'"b":"b"' in response.data, b_data)
+            self.assertEqual(b_mock.called, b_data)
+            self.assertEqual(b'"c":"c"' in response.data, c_data)
+            self.assertEqual(c_mock.called, c_data)
+            self.assertEqual(b'"d":"d"' in response.data, d_data)
+            self.assertEqual(d_mock.called, True)
 
     def test_partial_loading_with_comma_separated_props_in_partial_data_header(self):
         response = self.client.get("/partial/")
         self.assertIn(b'"a": "a"', response.data)
         self.assertIn(b'"b": "b"', response.data)
-        self.assertIn(b'"c": "c"', response.data)
+        self.assertNotIn(b'"c": "c"', response.data)
         self.assertIn(b"http://localhost/partial/", response.data)
 
         version_match = re.search(
@@ -211,7 +287,9 @@ class TestInertia(unittest.TestCase):
         response = self.client.get("/partial/", headers=headers)
         self.assertIn(b'"a":"a"', response.data)
         self.assertIn(b'"b":"b"', response.data)
+
         self.assertNotIn(b'"c": "c"', response.data)
+        self.assertIn(b'"d":"d"', response.data)
 
     def test_include_router(self):
         response = self.client.get("/")
@@ -286,7 +364,7 @@ class TestInertiaTestUtils(unittest.TestCase):
         data = response.inertia("app")
         self.assertEqual(data.props.a, "a")
         self.assertEqual(data.props.b, "b")
-        self.assertEqual(data.props.c, "c")
+        self.assertEqual(data.props.d, "d")
         self.assertEqual(data.url, "http://localhost/partial/")
 
         version_match = re.search(

@@ -101,10 +101,11 @@ through Flask responses. It will wrap your Responses and act accordingly to Iner
 requests context responding a full html or a JSON reponse. It will be used instead
 of Flask ``render_template`` method::
 
+  from flask.typing import ResponseReturnValue
   from flask_inertia import render_inertia
 
   @app.route("/test_inertia/")
-  def test_inertia():
+  def test_inertia() -> ResponseReturnValue:
       """An endpoint to test inertia integration."""
       data = {
           "username": "foo",
@@ -113,16 +114,42 @@ of Flask ``render_template`` method::
       return render_inertia(
           component_name="Index",
           props=data,
+          view_data={},
       )
-
 
 This method take 3 arguments:
 
-  * ``component_name``: Your frontend component name (eg "Index" for an Index.vue
+  * ``component_name``: Your frontend component name (e.g. "Index" for an Index.vue
     Component for example)
   * ``props``: [OPTIONAL] Data used by your component
   * ``view_data``: [OPTIONAL] Data used in your template but not sent to your JavaScript
     components
+
+Shorthand routes
+++++++++++++++++
+
+If you have a page that does not need a corresponding controller method (i.e. a frontend
+component which does not need ``props`` nor ``view_data``), like a "FAQ" or "about" page,
+you can route directly to a component via the ``add_shorthand_route`` method::
+
+  from flask import Flask
+  from flask_inertia import Inertia
+
+  app = Flask(__name__)
+  app.config.from_object(__name__)
+  inertia = Inertia(app)
+
+  inertia.add_shorthand_route("/faq/", "FAQ")
+  inertia.add_shorthand_route("/about/", "About", "My About Page")
+
+
+This method takes 3 arguments:
+
+  * ``url``: The URL rule as string as used in ``flask.add_url_rule``
+  * ``component_name``: Your frontend component name (e.g. "Index" for an Index.vue
+    Component for example)
+  * ``endpoint`` [OPTIONAL]: The endpoint for the registered URL rule. (by default the
+    ``component_name`` in lower case)
 
 Root template data
 ++++++++++++++++++
@@ -151,6 +178,24 @@ You can then access this variable with the template variable ``view_data``.
 
    <meta name="content" content="{{ view_data['description'] }}">
 
+External redirects
+++++++++++++++++++
+
+It is possible to redirect to an external website, or even another non-Inertia endpoint
+in your app while handling an Inertia request. This can be accomplished using a
+server-side initiated ``window.location`` visit via the ``inertia_location`` method::
+
+  from flask.typing import ResponseReturnValue
+  from flask_inertia import inertia_location
+
+  @app.route("/test_inertia/")
+  def external_url() -> ResponseReturnValue:
+      return inertia_location("http://foobar.com/")
+
+
+It will generate a ``409 Conflict`` response and include the destination URL in
+the ``X-Inertia-Location`` header. When this response is received client-side,
+Inertia will automatically perform a ``window.location = url`` visit.
 
 Share data between requests
 +++++++++++++++++++++++++++
@@ -174,13 +219,85 @@ followed::
   inertia.share("foo", "bar")
 
   # or a computed value
-  def shared_value():
+  def shared_value() -> str:
       return "buzz"
 
   inertia.share("fizz", shared_value)
 
 If the value is a ``callable``, the module will resolve it during the response
 resolution.
+
+Lazy data evaluation
+++++++++++++++++++++
+
+When making visits to the same page you are already on, it's not always necessary
+to re-fetch all of the page's data from the server. In fact, selecting only a subset
+of the data can be a helpful performance optimization if it's acceptable that
+some page data becomes stale.
+
+For partial reloads to be most effective, be sure to also use lazy data evaluation
+when returning props from your server-side routes or controllers. This can be
+accomplished by wrapping all optional page data in a ``callable``::
+
+  from flask.typing import ResponseReturnValue
+  from flask_inertia import render_inertia
+
+  def get_users() -> list[User]:
+      return User.query.all()
+
+  @app.route("/users/")
+  def users_view() -> ResponseReturnValue:
+      return render_inertia(
+          "Users",
+          props={
+              "users": get_users,
+              "companies": Company.query.all(),
+          }
+      )
+
+When Inertia performs a request, it will determine which data is required and only
+then will it evaluate the callable. This can significantly increase the performance
+of pages that contain a lot of optional data.
+
+Additionally, this module provides an ``lazy_include`` method to specify that a prop
+should never be included unless explicitly requested using the only ``option``. And
+on the inverse, you can use the ``always_include`` method to specify that a prop
+should always be included, even if it has not been explicitly required in a partial
+reload::
+
+  from flask.typing import ResponseReturnValue
+  from flask_inertia import always_include, lazy_include, render_inertia
+
+  def get_users() -> list[User]:
+      return User.query.all()
+
+
+  @app.route("/users/")
+  def users_view() -> ResponseReturnValue:
+      return render_inertia(
+          "Users",
+          props={
+              # ALWAYS included on standard visits
+              # OPTIONALLY included on partial reloads
+              # ALWAYS evaluated
+              "users": User.query.all(),  # or get_users()
+
+              # ALWAYS included on standard visits
+              # OPTIONALLY included on partial reloads
+              # ONLY evaluated when needed
+              "users": get_users,
+
+              # NEVER included on standard visits
+              # OPTIONALLY included on partial reloads
+              # ONLY evaluated when needed
+              "users": lazy_include(get_users),
+
+              # ALWAYS included on standard visits
+              # ALWAYS included on partial reloads
+              # ALWAYS evaluated
+              "users": always_include(User.query.all()),  # or always_include(get_users())
+          }
+      )
 
 To see a complete exemple on how to implement a project with this adapter, please
 read our `Tutorial <https://flask-inertia.readthedocs.io/en/latest/tutorial.html>`_.
@@ -195,4 +312,4 @@ If you want to contribute to this project, please read the dedicated file :
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
 .. |version| image:: https://img.shields.io/pypi/v/flask-inertia.svg
 .. |license| image:: https://img.shields.io/github/license/j0ack/flask-inertia.svg
-.. |inertiaversion| image:: https://img.shields.io/badge/inertia-0.11-cyan
+.. |inertiaversion| image:: https://img.shields.io/badge/inertia-1.2-cyan

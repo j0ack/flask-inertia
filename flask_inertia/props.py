@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # MIT License
 #
-# Copyright (c) 2021 TROUVERIE Joachim <jtrouverie@joakode.fr>
+# Copyright (c) 2024 TROUVERIE Joachim <jtrouverie@joakode.fr>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,27 +23,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 """
-Flask-Inertia
--------------
+flask_inertia.props
+-------------------
 
-Inertiajs Adapter for Flask.
+Wrappers to implement lazy data evaluation for Inertia partial reloads.
 """
 
-from flask_inertia.inertia import Inertia
-from flask_inertia.views import (
-    always_include,
-    inertia_location,
-    lazy_include,
-    render_inertia,
-)
+from typing import Any, Callable
 
-__all__ = [
-    "Inertia",
-    "render_inertia",
-    "inertia_location",
-    "lazy_include",
-    "always_include",
-]
-__version__ = "0.9"
+
+class LazyProp:
+    """Wrapper to specify that a prop should never be included unless explicitly requested."""
+
+    def __init__(self, callback: Callable):
+        self.callback = callback
+
+    def __call__(self) -> Any:
+        return self.callback()
+
+
+class AlwaysProp:
+    """Wrapper to specify that a prop should always be included, even if it has not been explicitly required."""
+
+    def __init__(self, prop: Any):
+        self.value = prop
+
+    def __call__(self) -> Any:
+        return self.value() if callable(self.value) else self.value
