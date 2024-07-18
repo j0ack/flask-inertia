@@ -120,15 +120,6 @@ Install dependencies
    cd static/vue
    npm create vite@latest . -- --template vue-ts
 
-
-Choose the Vue version and the Typescript support.
-
-.. figure:: _static/vue-init.png
-   :align: center
-
-.. figure:: _static/vue-complete.png
-   :align: center
-
 Install the Inertia dependendencies:
 
 .. code:: bash
@@ -140,7 +131,7 @@ creating missing folders:
 
 .. code:: bash
 
-   rm -rfv src/App.vue src/components/ src/assets/vue.svg public/ index.html README.md
+   rm -rfv src/App.vue src/components/ src/assets public/ index.html README.md index.html
    mkdir src/pages/
 
 Vue configuration
@@ -149,7 +140,7 @@ Vue configuration
 There are modification to the Vue configuration to make it usable with our
 application:
 
-By default, Vue embed a ``vite`` dev serve to serve the app. It will be
+By default, Vue embed a ``vite`` dev server to serve the app. It will be
 disabled in the ``package.json`` file replacing it with a ``build`` development
 mode. This task will allow you to configure a ``hot-reload`` development
 environment generating the ``main.js`` file. This file will then be served by the Flask app.
@@ -158,7 +149,7 @@ environment generating the ``main.js`` file. This file will then be served by th
 
    {
      "scripts": {
-       "build:dev": "vue build --mode=development --watch",
+       "build:dev": "vite build --mode=development --watch",
        "build:prod": "vite build",
        // ...
      }
@@ -433,8 +424,9 @@ as followed:
 Then, run ``make dev`` to run your development environment.
 
 You can find a `Flask-Inertia/Vue3` skeleton template using our
-`cookiecutter template <https://github.com/j0ack/flask-inertia-vuejs3-cookiecutter>`_.
+`cookiecutter template <https://github.com/j0ack/flask-inertia-cookiecutters>`_
+as well as templates for ``Svelte`` and ``React`` in the same repository.
 
 .. code-block:: bash
 
-  $ cookiecutter https://github.com/j0ack/flask-inertia-vuejs3-cookiecutter
+  $ cookiecutter https://github.com/j0ack/flask-inertia-cookiecutters --directory=vue3-vite
