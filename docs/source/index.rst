@@ -14,7 +14,7 @@ Welcome to Flask-Inertia's documentation
    :maxdepth: 2
    :caption: Contents:
 
-   tutorial
+   tutorial/index.rst
    unittest
    api
 
@@ -312,7 +312,7 @@ reload::
       )
 
 To see a complete exemple on how to implement a project with this adapter, please
-read our :doc:`tutorial` or check this `demo project <https://github.com/j0ack/pingcrm-flask>`_.
+read our :doc:`tutorial/index` or check this `demo project <https://github.com/j0ack/pingcrm-flask>`_.
 
 
 .. |coverage| image:: https://git.joakode.fr/joack/flask-inertia/badges/main/coverage.svg
