@@ -57,7 +57,7 @@ encoded inertia page object, or the JSON response based on its headers.
 It converts the page JSON object into a Python object using
 `SimpleNamespace <https://docs.python.org/3/library/types.html#types.SimpleNamespace>`_.
 
-For this example, the tests will cover the index `view` defined in the :doc:`tutorial`
+For this example, the tests will cover the index `view` defined in the :doc:`tutorial/index`
 part.
 
 .. code-block:: python
