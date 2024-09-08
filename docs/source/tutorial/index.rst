@@ -12,6 +12,7 @@ application communicating with a Vue3/Inertia frontend using TypeScript.
    app_skeleton.rst
    server_side.rst
    client_side.rst
+   enjoy.rst
 
 You can find a `Flask-Inertia/Vue3` skeleton template using our
 `cookiecutter template <https://github.com/j0ack/flask-inertia-cookiecutters>`_

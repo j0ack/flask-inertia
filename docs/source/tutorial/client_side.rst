@@ -37,19 +37,18 @@ disabled in the ``package.json`` file replacing it with a ``build`` development
 mode. This task will allow you to configure a ``hot-reload`` development
 environment generating the ``main.js`` file. This file will then be served by the Flask app.
 
-.. code:: JSON
+.. code:: Diff
 
-   {
-     "scripts": {
-       "build:dev": "vite build --mode=development --watch",
-       "build:prod": "vite build",
-       // ...
-     }
-   }
-
+       "scripts": {
+    -    "dev": "vite",
+    +    "build:dev": "vite build --mode=development --watch",
+    +    "build:prod": "vite build",
+         "build": "vue-tsc -b && vite build",
+         "preview": "vite preview"
+       }
 
 Vue needs to be configured to generate the JavaScript code into the ``static/dist``
-configured in the server-side application. Based on the application architecture,
+as configured in the server-side application. Based on the application architecture,
 there will be no need to generate a html file with Vue since our ``base.html``
 will be rendered by Flask. Those configuration are stored in a ``vite.config.js``
 file in the ``static/vue`` folder.
@@ -160,7 +159,7 @@ Create your views
 =================
 
 In the :doc:`server_side` chapter we created two views: ``index`` and ``params``.
-These views will use respectively a ``Index.vue`` and a ``Params.vue`` files stored
+These views use respectively a ``Index.vue`` and a ``Params.vue`` file stored
 in the ``static/vue/src/pages`` folder. It can be implemented as followed:
 
 .. code-block:: vue

@@ -51,11 +51,13 @@ as followed:
    all: dev
 
    # run Flask app in development mode
-   dev-python: FLASK_APP=app:app FLASK_DEBUG=1 flask run
+   dev-python:
+          FLASK_APP=app:app FLASK_DEBUG=1 flask run
 
    # build Vue app in development mode with hot-reload
    # this build will be covered in the client-side part
-   dev-vue: @npm run --prefix static/vue/ build:dev
+   dev-vue:
+          @npm run --prefix static/vue/ build:dev
 
    # run development environment
    dev: dev-python dev-vue

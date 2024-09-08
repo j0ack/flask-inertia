@@ -14,9 +14,9 @@ Welcome to Flask-Inertia's documentation
    :maxdepth: 2
    :caption: Contents:
 
-   tutorial/index.rst
    unittest
    api
+   tutorial/index.rst
 
 
 Installation
