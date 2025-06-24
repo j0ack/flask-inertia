@@ -35,10 +35,9 @@ from typing import List
 
 from setuptools import find_packages, setup
 
-from flask_inertia import __version__
-
 __author__ = "TROUVERIE Joachim"
 __contact__ = "jtrouverie@joakode.fr"
+__version__ = "0.10"
 
 
 def read_requirement_file(filename: str) -> List[str]:  # noqa: D103

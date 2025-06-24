@@ -15,9 +15,17 @@ import sys
 #
 from datetime import datetime
 
-sys.path.insert(0, op.abspath(op.dirname(op.dirname(op.dirname(__file__)))))
+root_path = op.abspath(op.dirname(op.dirname(op.dirname(__file__))))
+sys.path.insert(0, root_path)
 
-from flask_inertia import __version__  # noqa: E402
+version = "alpha"
+print(root_path)
+with open(op.join(root_path, "setup.py")) as setup_file:
+    for line in setup_file:
+        if line.startswith("__version__"):
+            version = line.split("=")[-1].strip()
+
+
 
 # -- Project information -----------------------------------------------------
 
@@ -28,7 +36,7 @@ copyright = f"{today.year}, TROUVERIE Joachim"
 author = "TROUVERIE Joachim"
 
 # The full version, including alpha/beta/rc tags
-release = __version__
+release = version
 
 
 # -- General configuration ---------------------------------------------------

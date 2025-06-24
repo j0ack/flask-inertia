@@ -1,3 +1,6 @@
+2025-06-24  TROUVERIE Joachim <jttrouverie@joakode.fr>
+    * v0.10
+    * new: support initializing the extension on a Blueprint @AlexJMohr
 2024-07-17  TROUVERIE Joachim  <jtrouverie@joakode.fr>
 	* v0.9
 	* new: manage lazy data evaluation on partial reloads

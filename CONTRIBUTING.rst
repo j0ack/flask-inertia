@@ -140,5 +140,5 @@ The available types are the following:
 Version and Changelog
 ---------------------
 
-No modification of the `__version__` variable in the `flask_inertia/__init__.py`
+No modification of the `__version__` variable in the `flask_inertia/setup.py`
 file nor the Changelog file will be accepted.

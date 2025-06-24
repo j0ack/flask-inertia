@@ -46,4 +46,3 @@ __all__ = [
     "lazy_include",
     "always_include",
 ]
-__version__ = "0.9"
