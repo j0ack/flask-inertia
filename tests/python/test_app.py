@@ -28,7 +28,7 @@ import unittest
 from http import HTTPStatus
 from unittest.mock import patch
 
-from flask import Flask, redirect, url_for
+from flask import Blueprint, Flask, redirect, url_for
 from parameterized import parameterized
 
 from flask_inertia import (
@@ -433,6 +433,33 @@ class TestInertiaTestUtils(unittest.TestCase):
         response = self.client.get("/meta/")
         data = response.inertia("app")
         self.assertFalse(hasattr(data.props, "description"))
+
+    def test_shorthand_route(self):
+        response = self.client.get("/faq/")
+        data = response.inertia("app")
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(data.component, "FAQ")
+
+
+class TestBlueprint(unittest.TestCase):
+    """Flask-Inertia blueprint tests."""
+
+    def setUp(self):
+        self.blueprint = Blueprint("inertia", __name__, template_folder=".")
+        self.blueprint.add_url_rule("/", "index", index)
+
+        self.inertia = Inertia(self.blueprint)
+        self.inertia.add_shorthand_route("/faq/", "FAQ")
+
+        self.app = Flask(__name__, template_folder=".")
+        self.app.config.from_object(TestConfig)
+        self.app.register_blueprint(self.blueprint)
+
+        self.app.response_class = InertiaTestResponse
+        self.client = self.app.test_client()
+
+    def test_extension_registered(self):
+        self.assertIn("inertia", self.app.extensions)
 
     def test_shorthand_route(self):
         response = self.client.get("/faq/")

@@ -34,7 +34,9 @@ import os
 from http import HTTPStatus
 from typing import Any, Optional
 
-from flask import Flask, Response, current_app, request
+from flask import Blueprint, Flask, Response, current_app, request
+from flask.app import App
+from flask.blueprints import BlueprintSetupState
 from jinja2 import Template
 from jsmin import jsmin
 from markupsafe import Markup
@@ -47,12 +49,12 @@ from flask_inertia.views import render_inertia
 class Inertia:
     """Inertia Plugin for Flask."""
 
-    def __init__(self, app: Optional[Flask] = None):
+    def __init__(self, app: Optional[Flask | Blueprint] = None):
         self.app = None
         if app is not None:
             self.init_app(app)
 
-    def init_app(self, app: Flask):
+    def init_app(self, app: Flask | Blueprint):
         """Init as an app extension
 
         * Register before_request hook
@@ -61,12 +63,24 @@ class Inertia:
         """
         self.app = app
         self._shared_data = {}
-        if not hasattr(app, "extensions"):
-            app.extensions = {}
-        app.extensions["inertia"] = self
+        if isinstance(app, Flask):
+            self._init_extension(app)
+        elif isinstance(app, Blueprint):
+            blueprint = app
+            # Register the extension once the blueprint is registered
+            blueprint.record_once(self.register_blueprint)
         app.context_processor(self.context_processor)
         app.before_request(self.process_incoming_inertia_requests)
         app.after_request(self.update_redirect)
+
+    def register_blueprint(self, state: BlueprintSetupState):
+        self._init_extension(state.app)
+
+    def _init_extension(self, app: App):
+        """Store a reference to the extension in the app's extensions."""
+        if not hasattr(app, "extensions"):
+            app.extensions = {}
+        app.extensions["inertia"] = self
 
     def process_incoming_inertia_requests(self) -> Optional[Response]:
         """Process incoming Inertia requests.

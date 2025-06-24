@@ -39,6 +39,15 @@ The config key ``INERTIA_TEMPLATE`` must be used to set globally the template us
 ``flask_inertia`` to render the server responses. This template must exists in the
 Flask app ``templates`` folder.
 
+The module can also be initialized on a Blueprint::
+
+  blueprint = Blueprint("inertia", __name__)
+  inertia = Inertia()
+  inertia.init_app(blueprint)
+  # or inertia = Inertia(blueprint)
+
+  app.register_blueprint(blueprint)
+
 Use
 ---
 
